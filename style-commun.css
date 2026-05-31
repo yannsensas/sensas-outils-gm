@@ -1,0 +1,373 @@
+/* ============================================================
+   style-commun.css — Sensas Outils GM
+   Base partagée entre tous les outils (ouie, gout, …)
+   Chaque outil charge style-commun.css PUIS son propre CSS.
+   ============================================================ */
+
+/* --- Fonts -------------------------------------------------- */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
+@font-face {
+  font-family: 'Cubano';
+  src: url('https://fonts.cdnfonts.com/s/15011/Cubano.woff') format('woff');
+  font-weight: 400;
+  font-display: swap;
+}
+
+/* --- Tokens ------------------------------------------------- */
+:root {
+  /* Couleurs de base (surcharger --accent dans chaque CSS outil) */
+  --accent:        #c0152a;
+  --accent-dim:    #8a0d1e;
+  --accent-soft:   rgba(192,21,42,.14);
+
+  --red:           #f87171;
+  --red-bg:        #3b1212;
+  --green:         #4ade80;
+  --green-bg:      #0f2d1a;
+  --orange:        #fbbf24;
+  --orange-bg:     #3b2700;
+
+  --bg:            #0e0d0d;
+  --surface:       #181516;
+  --surface2:      #211d1f;
+  --border:        rgba(255,255,255,.08);
+  --border-strong: rgba(255,255,255,.14);
+  --text:          #f0eaea;
+  --muted:         #8a7f80;
+
+  --radius:        12px;
+  --font-display:  'Cubano', 'Arial Black', sans-serif;
+  --font-body:     'Montserrat', 'Helvetica Neue', sans-serif;
+}
+
+/* --- Reset -------------------------------------------------- */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* --- Écrans ------------------------------------------------- */
+.screen { display: none; flex-direction: column; min-height: 100vh; }
+.screen.active { display: flex; animation: fadein .2s ease both; }
+@keyframes fadein {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* --- Topbar ------------------------------------------------- */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: rgba(14,13,13,.94);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  flex-shrink: 0;
+}
+.topbar-title {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  letter-spacing: .04em;
+  color: var(--text);
+}
+.btn-back {
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-size: .9rem;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 6px 0;
+  font-family: var(--font-body);
+}
+.btn-reset {
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: .9rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 6px 0;
+  font-family: var(--font-body);
+}
+
+/* --- Contenu ----------------------------------------------- */
+.content {
+  flex: 1;
+  padding: 20px;
+  max-width: 480px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* --- Accueil hero ------------------------------------------ */
+.home-wrap {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 40px 24px;
+  max-width: 480px;
+  margin: 0 auto;
+  width: 100%;
+}
+.home-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-bottom: 28px;
+  gap: 10px;
+}
+.home-sense-img {
+  width: 96px;
+  height: 96px;
+  border-radius: 18px;
+  object-fit: cover;
+  border: 1px solid var(--border-strong);
+  box-shadow: 0 12px 32px rgba(0,0,0,.45);
+}
+.home-hero h1 {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 8vw, 2.8rem);
+  letter-spacing: .06em;
+  color: var(--text);
+  line-height: 1;
+}
+.home-hero p {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* --- Boutons ----------------------------------------------- */
+.btn {
+  display: block;
+  width: 100%;
+  padding: 16px 20px;
+  margin: 8px 0;
+  border: none;
+  border-radius: 14px;
+  font-family: var(--font-display);
+  font-size: .95rem;
+  letter-spacing: .04em;
+  cursor: pointer;
+  text-align: center;
+  transition: transform .1s, opacity .1s;
+}
+.btn:active { transform: scale(.98); opacity: .85; }
+
+.btn-primary {
+  background: linear-gradient(160deg, var(--accent), var(--accent-dim));
+  color: #fff;
+  box-shadow: 0 8px 22px var(--accent-soft);
+}
+.btn-secondary {
+  background: var(--surface2);
+  color: var(--text);
+  border: 1px solid var(--border-strong);
+}
+.btn-danger {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #7f2020;
+  border-radius: 10px;
+  background: var(--red-bg);
+  color: var(--red);
+  font-family: var(--font-body);
+  font-size: .9rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: center;
+}
+
+/* --- Chips / filtres --------------------------------------- */
+.chips { display: flex; flex-wrap: wrap; gap: 5px; }
+.chip {
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: .72rem;
+  font-weight: 700;
+  background: var(--surface2);
+  color: var(--muted);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background .15s, color .15s, border-color .15s;
+}
+.chip.active {
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+/* --- Panneau filtre (encoche) ------------------------------ */
+.filter-panel {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height .28s cubic-bezier(.16,1,.3,1), padding .28s;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  pointer-events: none;
+}
+.filter-panel.open {
+  max-height: 420px;
+  pointer-events: auto;
+}
+.filter-inner {
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.filter-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.filter-label {
+  font-size: .7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--muted);
+  min-width: 64px;
+  flex-shrink: 0;
+}
+
+/* Encoche centrale (flèche) */
+.filter-notch {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 20px;
+  margin: 0 auto;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-top: none;
+  border-radius: 0 0 12px 12px;
+  cursor: pointer;
+  color: var(--muted);
+  transition: color .15s, background .15s;
+  flex-shrink: 0;
+}
+.filter-notch:hover { background: var(--surface); color: var(--text); }
+.filter-notch svg { transition: transform .28s cubic-bezier(.16,1,.3,1); }
+.filter-notch.open svg { transform: rotate(180deg); }
+
+/* --- Tabs éditeur ------------------------------------------ */
+.editor-tabs {
+  display: flex;
+  gap: 5px;
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 4px;
+  margin-bottom: 18px;
+  border: 1px solid var(--border);
+}
+.editor-tab {
+  flex: 1;
+  text-align: center;
+  padding: 8px 4px;
+  border-radius: calc(var(--radius) - 2px);
+  font-size: .72rem;
+  font-weight: 700;
+  color: var(--muted);
+  transition: background .15s, color .15s;
+  min-height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-body);
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+.editor-tab.active { background: var(--surface2); color: var(--text); }
+.editor-panel { display: none; flex-direction: column; gap: 14px; }
+.editor-panel.active { display: flex; }
+
+/* --- Inputs ------------------------------------------------- */
+.field-group { display: flex; flex-direction: column; gap: 5px; }
+.field-label {
+  font-size: .72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: var(--muted);
+}
+.einput {
+  width: 100%;
+  padding: 10px 12px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: .9rem;
+}
+.einput:focus { outline: 2px solid var(--accent); border-color: transparent; }
+select.einput option { background: #211d1f; }
+
+/* Sélecteur difficulté */
+.diff-selector { display: flex; gap: 7px; }
+.diff-btn {
+  flex: 1;
+  padding: 9px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  color: var(--muted);
+  font-size: .8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all .15s;
+  font-family: var(--font-body);
+}
+.diff-btn.active {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* --- Notices ----------------------------------------------- */
+.notice { border-radius: 8px; padding: 10px 14px; font-size: .85rem; display: none; }
+.n-ok  { background: var(--green-bg);  border: 1px solid #1f5c35; color: var(--green); }
+.n-err { background: var(--orange-bg); border: 1px solid #7a4d00; color: var(--orange); }
+
+/* --- Export box -------------------------------------------- */
+.exp-box {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px;
+  font-family: monospace;
+  font-size: .68rem;
+  white-space: pre-wrap;
+  word-break: break-all;
+  max-height: 200px;
+  overflow-y: auto;
+  color: var(--muted);
+}
+.fbm { font-size: .82rem; text-align: center; min-height: 18px; color: var(--green); }
+
+/* --- Scrollbar --------------------------------------------- */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 4px; }
