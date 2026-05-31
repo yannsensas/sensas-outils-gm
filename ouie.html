@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Sensas · Mimes</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    @font-face {
+      font-family: 'Cubano';
+      src: url('https://fonts.cdnfonts.com/s/15011/Cubano.woff') format('woff');
+      font-display: swap;
+    }
+  </style>
+  <link rel="stylesheet" href="style-ouie.css">
+  <script src="mimes.js"></script>
+</head>
+<body>
+
+<!-- ══════════════════════ ACCUEIL ══════════════════════ -->
+<div id="s-home" class="screen active">
+  <div class="home-wrap">
+    <div class="home-hero">
+      <img src="images/sens/oreille.png" alt="Salle des Mimes" class="home-sense-img" width="110" height="110" loading="eager">
+      <h1>MIMES</h1>
+      <p>Salle des Mimes &mdash; Outil GM</p>
+    </div>
+    <button class="btn btn-primary"   onclick="goSwipe()">Mode Swipe</button>
+    <button class="btn btn-secondary" onclick="showScreen('s-list')">Liste des Mimes</button>
+    <button class="btn btn-secondary" onclick="showScreen('s-editor'); eGo('add')">Éditeur</button>
+  </div>
+</div>
+
+<!-- ══════════════════════ SWIPE ══════════════════════ -->
+<div id="s-swipe" class="screen">
+  <div class="topbar">
+    <button class="btn-back" onclick="showScreen('s-home')">← Accueil</button>
+    <span class="topbar-title">Mode Swipe</span>
+    <button class="btn-filter-toggle" id="filter-toggle-btn" onclick="toggleFilters()" title="Filtres">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
+    </button>
+  </div>
+
+  <div class="filter-panel" id="filter-panel">
+    <div class="filter-inner">
+      <div class="filter-row">
+        <span class="filter-label">Catégorie</span>
+        <div class="chips" id="cat-chips"></div>
+      </div>
+      <div class="filter-row">
+        <span class="filter-label">Difficulté</span>
+        <div class="chips">
+          <button class="chip active" data-diff="1" onclick="toggleDiff(1,this)">★</button>
+          <button class="chip active" data-diff="2" onclick="toggleDiff(2,this)">★★</button>
+          <button class="chip active" data-diff="3" onclick="toggleDiff(3,this)">★★★</button>
+        </div>
+      </div>
+      <div class="filter-row">
+        <span class="filter-label">Public</span>
+        <div class="chips">
+          <button class="chip active" id="tog-adult" onclick="togglePublic('adult',this)">Adulte</button>
+          <button class="chip" id="tog-explicit" onclick="togglePublic('explicit',this)">Explicite</button>
+          <button class="chip" id="tog-kids" onclick="togglePublic('kids',this)">Enfants</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="swipe-wrap" id="swipe-wrap">
+    <div class="session-counter">
+      <div class="counter-dots" id="counter-dots"></div>
+      <span class="counter-text" id="counter-text">0 / 8</span>
+    </div>
+
+    <div class="kw-toast" id="kw-toast">
+      <div class="kw-toast-label">Mot-clé</div>
+      <div class="kw-toast-word" id="kw-toast-word"></div>
+      <div class="kw-toast-mime" id="kw-toast-mime"></div>
+      <div class="kw-toast-bar"><div class="kw-toast-progress" id="kw-toast-bar"></div></div>
+    </div>
+
+    <div class="card-stack" id="card-stack">
+      <div class="swipe-hint swipe-hint-validate">VALIDÉ</div>
+      <div class="swipe-hint swipe-hint-skip">PASSER</div>
+
+      <div class="deck-empty" id="deck-empty">
+        <p>Plus de mimes disponibles<br>avec ces filtres.</p>
+        <button class="btn btn-secondary" style="margin-top:16px;width:auto;padding:12px 24px;" onclick="resetSession()">Recommencer</button>
+      </div>
+    </div>
+
+    <div class="swipe-actions">
+      <button class="action-btn action-btn-skip" onclick="doSkip()" title="Passer">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      <button class="action-btn action-btn-validate" onclick="doValidate()" title="Valider">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+      </button>
+    </div>
+
+    <div class="session-complete" id="session-complete">
+      <div class="complete-title">Session complète</div>
+      <p class="complete-sub">8 mimes validés — mots transmis :</p>
+      <div class="complete-keywords" id="complete-keywords"></div>
+      <button class="btn btn-primary" style="margin-top:8px" onclick="resetSession()">Nouvelle session</button>
+      <button class="btn btn-secondary" onclick="showScreen('s-home')">Accueil</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════ LISTE ══════════════════════ -->
+<div id="s-list" class="screen">
+  <div class="topbar">
+    <button class="btn-back" onclick="showScreen('s-home')">← Accueil</button>
+    <span class="topbar-title">Liste des Mimes</span>
+    <span></span>
+  </div>
+  <div class="content">
+    <div class="filters-list-bar">
+      <div class="chips" id="list-cat-chips"></div>
+    </div>
+    <ul class="mime-list" id="mime-list"></ul>
+  </div>
+</div>
+
+<!-- ══════════════════════ ÉDITEUR ══════════════════════ -->
+<div id="s-editor" class="screen">
+  <div class="topbar">
+    <button class="btn-back" onclick="showScreen('s-home')">← Accueil</button>
+    <span class="topbar-title">Éditeur</span>
+    <span></span>
+  </div>
+  <div class="content">
+    <div class="editor-tabs">
+      <button class="editor-tab active" id="t-add" onclick="eGo('add')">Ajouter</button>
+      <button class="editor-tab" id="t-local" onclick="eGo('local')">Mes Mimes</button>
+      <button class="editor-tab" id="t-hidden" onclick="eGo('hidden')">Masqués</button>
+      <button class="editor-tab" id="t-export" onclick="eGo('export')">Export</button>
+    </div>
+
+    <div class="editor-panel active" id="ep-add">
+      <div class="notice n-ok" id="na-ok"></div>
+      <div class="notice n-err" id="na-err"></div>
+
+      <div class="field-group">
+        <label class="field-label">Intitulé</label>
+        <input class="einput" id="a-label" type="text" placeholder="Ex: Dark Vador">
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Catégorie</label>
+        <select class="einput" id="a-cat">
+          <option value="animaux">Animaux</option>
+          <option value="actions">Actions</option>
+          <option value="metiers">Métiers</option>
+          <option value="sports">Sports</option>
+          <option value="danses">Danses</option>
+          <option value="personnages">Personnages</option>
+          <option value="personnalites">Personnalités</option>
+          <option value="expressions">Expressions</option>
+          <option value="enfants">Enfants</option>
+          <option value="adulte">Adulte</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Difficulté</label>
+        <div class="diff-selector">
+          <button class="diff-btn" onclick="setDiff(1,this)">★ Facile</button>
+          <button class="diff-btn active" onclick="setDiff(2,this)">★★ Moyen</button>
+          <button class="diff-btn" onclick="setDiff(3,this)">★★★ Difficile</button>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Public</label>
+        <select class="einput" id="a-public">
+          <option value="all">Tout public</option>
+          <option value="adult">Adulte (suggestif)</option>
+          <option value="explicit">Explicite</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Mot-clé transmis au binôme</label>
+        <input class="einput" id="a-keyword" type="text" placeholder="Ex: EMPIRE">
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Tag enfants</label>
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+          <input type="checkbox" id="a-kids"> <span style="font-size:.88rem">Ce mime convient aux enfants</span>
+        </label>
+      </div>
+
+      <button class="btn btn-primary" style="margin-top:4px" onclick="doAdd()">Ajouter le mime</button>
+    </div>
+
+    <div class="editor-panel" id="ep-local">
+      <p class="list-hint">Mimes ajoutés sur cet appareil.</p>
+      <ul class="local-list" id="local-list"></ul>
+    </div>
+
+    <div class="editor-panel" id="ep-hidden">
+      <p class="list-hint">Mimes masqués sur cet appareil.</p>
+      <ul class="local-list" id="hidden-list"></ul>
+    </div>
+
+    <div class="editor-panel" id="ep-export">
+      <p class="list-hint">Export des mimes locaux — prêt à merger sur GitHub.</p>
+      <button class="btn btn-primary" onclick="doDl()" style="margin-bottom:8px">Télécharger mimes-local.js</button>
+      <button class="btn btn-secondary" onclick="doCopy()">Copier</button>
+      <div class="fbm" id="exp-msg"></div>
+      <div class="exp-box" id="exp-box"></div>
+      <hr style="border-color:var(--border);margin:20px 0">
+      <p class="list-hint" style="color:var(--red)">Zone danger</p>
+      <button class="btn-danger" onclick="doReset()">Réinitialiser les données locales</button>
+    </div>
+  </div>
+</div>
+
+<script>
+var LS_LOCAL   = 'ouie_local';
+var LS_HIDDEN  = 'ouie_hidden';
+var LS_FILTERS = 'ouie_filters';
+
+var addDiff = 2;
+var session = { validated:[], skipped:[], deck:[], current:null };
+var filters = loadFilters();
+var filtersOpen = false;
+var listCatFilter = 'all';
+var ALL_CATS = ['animaux','actions','metiers','sports','danses','personnages','personnalites','expressions','enfants','adulte'];
+var toastTimer = null;
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+  if (id === 's-list') buildMimeList();
+  if (id === 's-editor') { buildLocalList(); buildHiddenList(); }
+}
+
+function goSwipe() {
+  showScreen('s-swipe');
+  buildCatChips();
+  syncFilterUI();
+  resetSession();
+}
+
+function getLocalMimes() {
+  try { return JSON.parse(localStorage.getItem(LS_LOCAL) || '[]'); } catch(e){ return []; }
+}
+function getHiddenIds() {
+  try { return JSON.parse(localStorage.getItem(LS_HIDDEN) || '[]'); } catch(e){ return []; }
+}
+function saveLocal(arr)  { localStorage.setItem(LS_LOCAL, JSON.stringify(arr)); }
+function saveHidden(arr) { localStorage.setItem(LS_HIDDEN, JSON.stringify(arr)); }
+function getAllMimes() {
+  var base   = (typeof mimes !== 'undefined') ? mimes : [];
+  var local  = getLocalMimes();
+  var hidden = getHiddenIds();
+  return base.concat(local).filter(function(m){ return hidden.indexOf(m.id) < 0; });
+}
+
+function defaultFilters() {
+  return { cats: ALL_CATS.slice(), diffs:[1,2,3], adult:true, explicit:false, kids:false };
+}
+function loadFilters() {
+  try { var f = JSON.parse(localStorage.getItem(LS_FILTERS)); return f || defaultFilters(); }
+  catch(e){ return defaultFilters(); }
+}
+function saveFilters() { localStorage.setItem(LS_FILTERS, JSON.stringify(filters)); }
+
+function applyFilters(all) {
+  return all.filter(function(m) {
+    if (filters.kids) {
+      if (!m.tags || m.tags.indexOf('enfants') < 0) return false;
+    } else {
+      if (filters.cats.indexOf(m.category) < 0) return false;
+    }
+    if (filters.diffs.indexOf(m.difficulty) < 0) return false;
+    if (m.public === 'explicit' && !filters.explicit) return false;
+    if (m.public === 'adult' && !filters.adult && !filters.explicit) return false;
+    return true;
+  });
+}
+
+function buildCatChips() {
+  var div = document.getElementById('cat-chips');
+  div.innerHTML = '';
+  ALL_CATS.forEach(function(c) {
+    var on = filters.cats.indexOf(c) >= 0;
+    var btn = document.createElement('button');
+    btn.className = 'chip' + (on ? ' active' : '');
+    btn.textContent = catLabel(c);
+    btn.onclick = function(){ toggleCat(c, btn); };
+    div.appendChild(btn);
+  });
+}
+function catLabel(c) {
+  var map = {animaux:'Animaux',actions:'Actions',metiers:'Métiers',sports:'Sports',danses:'Danses',personnages:'Personnages',personnalites:'Personnalités',expressions:'Expressions',enfants:'Enfants',adulte:'Adulte'};
+  return map[c] || c;
+}
+function syncFilterUI() {
+  [1,2,3].forEach(function(d){
+    var btn = document.querySelector('[data-diff="'+d+'"]');
+    if (btn) btn.classList.toggle('active', filters.diffs.indexOf(d) >= 0);
+  });
+  var ta = document.getElementById('tog-adult');
+  var te = document.getElementById('tog-explicit');
+  var tk = document.getElementById('tog-kids');
+  if (ta) ta.classList.toggle('active', filters.adult);
+  if (te) te.classList.toggle('active', filters.explicit);
+  if (tk) tk.classList.toggle('active', filters.kids);
+}
+function toggleCat(c, btn) {
+  var idx = filters.cats.indexOf(c);
+  if (idx >= 0) { if (filters.cats.length > 1) { filters.cats.splice(idx,1); btn.classList.remove('active'); } }
+  else { filters.cats.push(c); btn.classList.add('active'); }
+  saveFilters();
+  rebuildDeck();
+}
+function toggleDiff(d, btn) {
+  var idx = filters.diffs.indexOf(d);
+  if (idx >= 0) { if (filters.diffs.length > 1) { filters.diffs.splice(idx,1); btn.classList.remove('active'); } }
+  else { filters.diffs.push(d); btn.classList.add('active'); }
+  saveFilters();
+  rebuildDeck();
+}
+function togglePublic(key, btn) {
+  filters[key] = !filters[key];
+  btn.classList.toggle('active', filters[key]);
+  saveFilters();
+  rebuildDeck();
+}
+function toggleFilters() {
+  filtersOpen = !filtersOpen;
+  var panel = document.getElementById('filter-panel');
+  var fbtn  = document.getElementById('filter-toggle-btn');
+  panel.classList.toggle('open', filtersOpen);
+  fbtn.classList.toggle('active', filtersOpen);
+}
+
+function resetSession() {
+  session = { validated:[], skipped:[], deck:[], current:null };
+  document.getElementById('session-complete').classList.remove('visible');
+  document.getElementById('deck-empty').classList.remove('visible');
+  rebuildDeck();
+  updateCounter();
+}
+
+function rebuildDeck() {
+  var pool = applyFilters(getAllMimes());
+  var seenIds = session.validated.concat(session.skipped).map(function(m){ return m.id; });
+  pool = pool.filter(function(m){ return seenIds.indexOf(m.id) < 0; });
+  for (var i = pool.length-1; i > 0; i--) {
+    var j = Math.floor(Math.random()*(i+1));
+    var t = pool[i]; pool[i]=pool[j]; pool[j]=t;
+  }
+  session.deck = pool;
+  renderTopCard();
+}
+
+function renderTopCard() {
+  var stack = document.getElementById('card-stack');
+  stack.querySelectorAll('.mime-card').forEach(function(c){ c.remove(); });
+
+  if (session.validated.length >= 8) { showComplete(); return; }
+
+  if (session.deck.length === 0) {
+    if (session.skipped.length > 0) {
+      session.deck = session.skipped.slice();
+      session.skipped = [];
+      renderTopCard();
+      return;
+    }
+    document.getElementById('deck-empty').classList.add('visible');
+    return;
+  }
+
+  document.getElementById('deck-empty').classList.remove('visible');
+
+  for (var i = Math.min(1, session.deck.length-1); i >= 0; i--) {
+    var card = makeCard(session.deck[i], i === 0);
+    stack.insertBefore(card, stack.firstChild);
+  }
+  session.current = session.deck[0];
+}
+
+function makeCard(mime, isTop) {
+  var card = document.createElement('div');
+  card.className = 'mime-card' + (isTop ? ' is-top' : ' is-behind');
+  card.innerHTML =
+    '<div class="card-cat">' + esc(catLabel(mime.category).toUpperCase()) + '</div>' +
+    '<div class="card-label">' + esc(mime.label) + '</div>' +
+    '<div class="card-diff">' + starsSvg(mime.difficulty) + '</div>';
+
+  if (isTop) {
+    var startX, currentX = 0, isDragging = false;
+    function onStart(e) {
+      isDragging = true;
+      var pt = e.touches ? e.touches[0] : e;
+      startX = pt.clientX;
+      card.style.transition = 'none';
+    }
+    function onMove(e) {
+      if (!isDragging) return;
+      var pt = e.touches ? e.touches[0] : e;
+      currentX = pt.clientX - startX;
+      var rot = currentX * 0.08;
+      card.style.transform = 'translateX('+currentX+'px) rotate('+rot+'deg)';
+      var ratio = Math.min(Math.abs(currentX)/100, 1);
+      document.querySelector('.swipe-hint-validate').style.opacity = currentX > 20 ? ratio : 0;
+      document.querySelector('.swipe-hint-skip').style.opacity = currentX < -20 ? ratio : 0;
+    }
+    function onEnd() {
+      if (!isDragging) return;
+      isDragging = false;
+      document.querySelector('.swipe-hint-validate').style.opacity = 0;
+      document.querySelector('.swipe-hint-skip').style.opacity = 0;
+      if (currentX > 80) flyOut(card, 1);
+      else if (currentX < -80) flyOut(card, -1);
+      else { card.style.transition='transform .3s'; card.style.transform=''; }
+      currentX = 0;
+    }
+    card.addEventListener('mousedown', onStart);
+    card.addEventListener('mousemove', onMove);
+    card.addEventListener('mouseup', onEnd);
+    card.addEventListener('touchstart', onStart, {passive:true});
+    card.addEventListener('touchmove', onMove, {passive:true});
+    card.addEventListener('touchend', onEnd);
+  }
+  return card;
+}
+
+function flyOut(card, dir) {
+  card.style.transition = 'transform .3s, opacity .3s';
+  card.style.transform  = 'translateX('+(dir*500)+'px) rotate('+(dir*20)+'deg)';
+  card.style.opacity    = '0';
+  setTimeout(function(){
+    if (dir > 0) doValidate(); else doSkip();
+  }, 200);
+}
+
+function doValidate() {
+  if (!session.current) return;
+  var mime = session.current;
+  session.validated.push(mime);
+  session.deck.shift();
+  session.current = null;
+  updateCounter();
+  showKwToast(mime.keyword || '—', mime.label);
+  renderTopCard();
+  if (session.validated.length >= 8) setTimeout(showComplete, 2800);
+}
+function doSkip() {
+  if (!session.current) return;
+  session.skipped.push(session.current);
+  session.deck.shift();
+  session.current = null;
+  renderTopCard();
+}
+
+function updateCounter() {
+  var dots = document.getElementById('counter-dots');
+  dots.innerHTML = '';
+  for (var i=0;i<8;i++){
+    var d=document.createElement('div');
+    d.className='dot'+(i<session.validated.length?' filled':'');
+    dots.appendChild(d);
+  }
+  document.getElementById('counter-text').textContent = session.validated.length+' / 8';
+}
+
+function showComplete() {
+  document.getElementById('session-complete').classList.add('visible');
+  var div = document.getElementById('complete-keywords');
+  div.innerHTML = '';
+  session.validated.forEach(function(m,i){
+    div.innerHTML += '<div class="complete-kw-chip"><span>'+(i+1)+'. '+esc(m.label)+'</span>'+esc(m.keyword||'—')+'</div>';
+  });
+}
+
+function showKwToast(kw, mimeLabel) {
+  if (toastTimer) clearTimeout(toastTimer);
+  var toast = document.getElementById('kw-toast');
+  var bar   = document.getElementById('kw-toast-bar');
+  document.getElementById('kw-toast-word').textContent = kw;
+  document.getElementById('kw-toast-mime').textContent = mimeLabel;
+  bar.style.transition = 'none';
+  bar.style.width = '100%';
+  toast.classList.add('visible');
+  requestAnimationFrame(function(){
+    requestAnimationFrame(function(){
+      bar.style.transition = 'width 2.5s linear';
+      bar.style.width = '0%';
+    });
+  });
+  toastTimer = setTimeout(function(){
+    toast.classList.remove('visible');
+  }, 2700);
+}
+
+function starsSvg(diff) {
+  var s = '';
+  for (var i=1;i<=3;i++) {
+    s += '<svg width="14" height="14" viewBox="0 0 24 24" fill="'+(i<=diff?'currentColor':'none')+'" stroke="currentColor" stroke-width="1.5" class="star'+(i<=diff?'':' empty')+'"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>';
+  }
+  return s;
+}
+
+function buildMimeList() {
+  var chips = document.getElementById('list-cat-chips');
+  chips.innerHTML = '<button class="chip'+(listCatFilter==='all'?' active':'')+'" onclick="setListCat(\'all\',this)">Tous</button>';
+  ALL_CATS.forEach(function(c){
+    chips.innerHTML += '<button class="chip'+(listCatFilter===c?' active':'')+'" onclick="setListCat(\''+c+'\',this)">'+catLabel(c)+'</button>';
+  });
+  renderMimeList();
+}
+function setListCat(c, btn) {
+  listCatFilter = c;
+  document.querySelectorAll('#list-cat-chips .chip').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  renderMimeList();
+}
+function renderMimeList() {
+  var all = getAllMimes();
+  if (listCatFilter !== 'all') all = all.filter(function(m){ return m.category === listCatFilter; });
+  var ul = document.getElementById('mime-list');
+  ul.innerHTML = '';
+  if (all.length === 0) { ul.innerHTML = '<li class="list-empty">Aucun mime.</li>'; return; }
+  all.forEach(function(m){
+    var li = document.createElement('li');
+    li.className = 'mime-list-item';
+    li.innerHTML = '<div><div class="mli-label">'+esc(m.label)+'</div>'
+      + '<div class="mli-meta">'+catLabel(m.category)+' · '+starText(m.difficulty)+'</div></div>'
+      + '<div class="mli-kw">'+esc(m.keyword||'—')+'</div>';
+    ul.appendChild(li);
+  });
+}
+function starText(d){ return '★'.repeat(d)+'☆'.repeat(3-d); }
+
+function eGo(tab) {
+  ['add','local','hidden','export'].forEach(function(t){
+    document.getElementById('t-'+t).classList.toggle('active', t===tab);
+    document.getElementById('ep-'+t).classList.toggle('active', t===tab);
+  });
+  if (tab==='local')  buildLocalList();
+  if (tab==='hidden') buildHiddenList();
+  if (tab==='export') buildExport();
+}
+function setDiff(d, btn) {
+  addDiff = d;
+  document.querySelectorAll('.diff-btn').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+}
+function doAdd() {
+  var label   = document.getElementById('a-label').value.trim();
+  var keyword = document.getElementById('a-keyword').value.trim().toUpperCase();
+  if (!label)   { showNotice('na-err','na-ok','Le label est obligatoire.'); return; }
+  if (!keyword) { showNotice('na-err','na-ok','Le mot-clé est obligatoire.'); return; }
+  var kids = document.getElementById('a-kids').checked;
+  var local = getLocalMimes();
+  local.push({
+    id: 'local_'+Date.now(),
+    label: label,
+    category: document.getElementById('a-cat').value,
+    difficulty: addDiff,
+    public: document.getElementById('a-public').value,
+    keyword: keyword,
+    tags: kids ? ['enfants'] : [],
+    _local: true
+  });
+  saveLocal(local);
+  showNotice('na-ok','na-err','Mime ajouté : '+label);
+  document.getElementById('a-label').value = '';
+  document.getElementById('a-keyword').value = '';
+  document.getElementById('a-kids').checked = false;
+}
+function buildLocalList() {
+  var local = getLocalMimes();
+  var ul = document.getElementById('local-list');
+  ul.innerHTML = '';
+  if (!local.length){ ul.innerHTML='<li class="list-empty">Aucun mime local.</li>'; return; }
+  local.forEach(function(m){
+    var li = document.createElement('li');
+    li.className = 'local-item';
+    li.innerHTML = '<div><div class="mli-label">'+esc(m.label)+'</div><div class="mli-meta">'+catLabel(m.category)+' · '+esc(m.keyword||'—')+'</div></div>'
+      +'<button class="btn-del" onclick="deleteLocal(\''+m.id+'\')">Suppr.</button>';
+    ul.appendChild(li);
+  });
+}
+function deleteLocal(id) {
+  saveLocal(getLocalMimes().filter(function(m){ return m.id!==id; }));
+  buildLocalList();
+}
+function buildHiddenList() {
+  var hidden = getHiddenIds();
+  var all = ((typeof mimes!=='undefined')?mimes:[]).concat(getLocalMimes());
+  var ul = document.getElementById('hidden-list');
+  ul.innerHTML = '';
+  if (!hidden.length){ ul.innerHTML='<li class="list-empty">Aucun mime masqué.</li>'; return; }
+  hidden.forEach(function(id){
+    var m = all.find(function(x){ return x.id===id; });
+    var label = m ? m.label : id;
+    var li = document.createElement('li');
+    li.className = 'local-item';
+    li.innerHTML = '<span style="font-weight:600;font-size:.9rem">'+esc(label)+'</span>'
+      +'<button class="btn-secondary" style="width:auto;padding:6px 14px;font-size:.78rem" onclick="unhide(\''+id+'\')">Restaurer</button>';
+    ul.appendChild(li);
+  });
+}
+function unhide(id){ saveHidden(getHiddenIds().filter(function(x){ return x!==id; })); buildHiddenList(); }
+function buildExport() {
+  var local  = getLocalMimes();
+  var hidden = getHiddenIds();
+  var out = 'const MIMES_VERSION="1.0.0";\nconst mimes='+JSON.stringify(local,null,2)+';\nconst HIDDEN_IDS='+JSON.stringify(hidden,null,2)+';\nif(typeof window!=="undefined"){window.mimes=mimes;window.HIDDEN_IDS=HIDDEN_IDS;}';
+  document.getElementById('exp-box').textContent = out;
+}
+function doCopy(){ navigator.clipboard.writeText(document.getElementById('exp-box').textContent).then(function(){ flashMsg('exp-msg','Copié.'); }); }
+function doDl(){
+  var a=document.createElement('a');
+  a.href='data:text/javascript;charset=utf-8,'+encodeURIComponent(document.getElementById('exp-box').textContent);
+  a.download='mimes-local.js'; a.click();
+}
+function doReset(){
+  if(confirm('Supprimer tous les mimes locaux et masquages ?')){
+    localStorage.removeItem(LS_LOCAL);
+    localStorage.removeItem(LS_HIDDEN);
+    buildLocalList();
+    buildHiddenList();
+  }
+}
+
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function showNotice(showId, hideId, msg){
+  var a=document.getElementById(showId), b=document.getElementById(hideId);
+  a.textContent=msg; a.style.display='block'; b.style.display='none';
+  setTimeout(function(){ a.style.display='none'; },3000);
+}
+function flashMsg(id,msg){ var el=document.getElementById(id); el.textContent=msg; setTimeout(function(){ el.textContent=''; },2000); }
+</script>
+</body>
+</html>
