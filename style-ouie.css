@@ -76,7 +76,7 @@ body {
   font-family:var(--font-body);
 }
 
-/* ── Encoche filtre (remplace btn-filter-toggle) ── */
+/* ── Encoche filtre ── */
 .filter-notch {
   display:flex;
   align-items:center;
@@ -93,29 +93,19 @@ body {
   flex-shrink:0;
   margin:0 auto;
   position:relative;
-  z-index:21;
+  z-index:19;
 }
 .filter-notch:hover { background:var(--surface); color:var(--text); }
 .filter-notch.active { color:var(--accent); }
 
-.filter-notch-arrow {
+/* Flèche : sélecteurs unifiés (.notch-arrow = classe dans le HTML) */
+.notch-arrow {
   transition:transform .28s cubic-bezier(.16,1,.3,1);
   display:block;
+  pointer-events:none;
 }
-.filter-notch.active .filter-notch-arrow {
+.filter-notch.active .notch-arrow {
   transform:rotate(180deg);
-}
-
-/* Wrapper topbar+encoche pour que l'encoche soit sticky avec la topbar */
-.topbar-wrap {
-  position:sticky;
-  top:0;
-  z-index:20;
-  flex-shrink:0;
-}
-.topbar-wrap .topbar {
-  position:static;
-  z-index:auto;
 }
 
 /* ── Panneau filtre ── */
@@ -126,11 +116,11 @@ body {
   background:var(--surface);
   border-bottom:1px solid var(--border);
   flex-shrink:0;
-  pointer-events:none;
+  pointer-events:none;  /* désactivé quand fermé */
 }
 .filter-panel.open {
   max-height:400px;
-  pointer-events:auto;
+  pointer-events:auto;  /* réactivé à l'ouverture */
 }
 
 .filter-inner {
@@ -523,10 +513,6 @@ body {
 }
 
 /* ── Liste ── */
-.filters-list-bar {
-  padding:12px 0 4px;
-  overflow-x:auto;
-}
 .mime-list { list-style:none; }
 .mime-list-item {
   display:flex;
