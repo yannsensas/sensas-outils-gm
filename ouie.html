@@ -8,14 +8,6 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    @font-face {
-      font-family: 'Cubano';
-      src: url('https://fonts.cdnfonts.com/s/15011/Cubano.woff') format('woff');
-      font-weight: 400;
-      font-display: swap;
-    }
-  </style>
   <link rel="stylesheet" href="style-commun.css">
   <link rel="stylesheet" href="style-ouie.css">
   <script src="keywords.js"></script>
@@ -154,7 +146,6 @@
       <button class="tab"    id="t-hidden" onclick="eGo('hidden')">Masqués</button>
       <button class="tab"    id="t-export" onclick="eGo('export')">Export</button>
     </div>
-
     <div class="epanel on" id="ep-add">
       <div class="notice n-ok"  id="na-ok"></div>
       <div class="notice n-err" id="na-err"></div>
@@ -179,7 +170,6 @@
       </label>
       <button class="btn btn-primary" style="margin-top:8px" onclick="doAdd()">Ajouter le mime</button>
     </div>
-
     <div class="epanel" id="ep-local">
       <p class="list-hint">Mimes ajoutés sur cet appareil.</p>
       <ul id="local-list"></ul>
@@ -211,17 +201,23 @@
 
 <script>
 'use strict';
+
+/* ── Constantes issues de mimes.js ── */
+var ALL_CATS   = (typeof MIMES_CATEGORIES !== 'undefined') ? MIMES_CATEGORIES : [];
+var CAT_LABELS = {
+  animaux:'Animaux', actions:'Actions', metiers:'Métiers',
+  sports:'Sports', danses:'Danses', personnages:'Personnages',
+  personnalites:'Personnalités', expressions:'Expressions',
+  enfants:'Enfants', adulte:'Adulte'
+};
+
 var LS_LOCAL   = 'ouie_local';
 var LS_HIDDEN  = 'ouie_hidden';
 var LS_FILTERS = 'ouie_filters';
 var addDiff    = 2;
 var session    = { validated:[], skipped:[], deck:[], current:null };
-var filters    = loadFilters();
 var filtersOpen = false;
 var listFilters = { cats:[], diffs:[], adult:true, explicit:false, kids:true };
-var ALL_CATS = ['animaux','actions','metiers','sports','danses','personnages','personnalites','expressions','enfants','adulte'];
-var CAT_LABELS = {animaux:'Animaux',actions:'Actions',metiers:'Métiers',sports:'Sports',danses:'Danses',personnages:'Personnages',personnalites:'Personnalités',expressions:'Expressions',enfants:'Enfants',adulte:'Adulte'};
-var toastTimer = null;
 
 /* ── Storage ── */
 function getLocal()  { try { return JSON.parse(localStorage.getItem(LS_LOCAL)  || '[]'); } catch(e){ return []; } }
@@ -229,17 +225,20 @@ function getHidden() { try { return JSON.parse(localStorage.getItem(LS_HIDDEN) |
 function saveLocal(a) { localStorage.setItem(LS_LOCAL, JSON.stringify(a)); }
 function saveHidden(a){ localStorage.setItem(LS_HIDDEN, JSON.stringify(a)); }
 function getAllMimes() {
-  var base = (typeof mimes !== 'undefined') ? mimes : [];
+  var base   = (typeof mimes !== 'undefined') ? mimes : [];
   var hidden = getHidden();
   return base.concat(getLocal()).filter(function(m){ return hidden.indexOf(m.id) < 0; });
 }
+
 function defaultFilters() {
   return { cats: ALL_CATS.slice(), diffs:[1,2,3], adult:true, explicit:false, kids:false };
 }
-function loadFilters() {
-  try { var f = JSON.parse(localStorage.getItem(LS_FILTERS)); return f || defaultFilters(); }
-  catch(e){ return defaultFilters(); }
-}
+var filters = (function() {
+  try {
+    var f = JSON.parse(localStorage.getItem(LS_FILTERS));
+    return f || defaultFilters();
+  } catch(e) { return defaultFilters(); }
+})();
 function saveFilters() { localStorage.setItem(LS_FILTERS, JSON.stringify(filters)); }
 
 /* ── Navigation ── */
@@ -247,13 +246,12 @@ function showScreen(id) {
   document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
   document.getElementById(id).classList.add('active');
   window.scrollTo(0,0);
-  if (id === 's-list') { buildListChips(); renderMimeList(); }
+  if (id === 's-list')   { buildListChips(); renderMimeList(); }
   if (id === 's-editor') { buildCatSelect(); buildLocalList(); buildHiddenList(); }
 }
 
 function goSwipe() {
   showScreen('s-swipe');
-  buildSwipeChips();
   syncPublicUI();
   resetSession();
 }
@@ -262,7 +260,6 @@ function goSwipe() {
 function toggleFilters() {
   filtersOpen = !filtersOpen;
   document.getElementById('filter-panel').classList.toggle('open', filtersOpen);
-  document.getElementById('notch-arrow').style.transform = filtersOpen ? 'rotate(180deg)' : '';
   document.getElementById('swipe-notch').classList.toggle('open', filtersOpen);
 }
 
@@ -274,7 +271,7 @@ function buildSwipeChips() {
   ALL_CATS.forEach(function(c) {
     var btn = document.createElement('button');
     btn.className = 'chip' + (filters.cats.indexOf(c) >= 0 ? ' active' : '');
-    btn.textContent = CAT_LABELS[c];
+    btn.textContent = CAT_LABELS[c] || c;
     btn.dataset.cat = c;
     btn.onclick = function() { toggleCat(c, btn); };
     cc.appendChild(btn);
@@ -282,7 +279,7 @@ function buildSwipeChips() {
   /* difficultés */
   var dc = document.getElementById('diff-chips');
   dc.innerHTML = '';
-  [{v:1,l:'★'},{v:2,l:'★★'},{v:3,l:'★★★'}].forEach(function(d) {
+  [{v:1,l:'★ Facile'},{v:2,l:'★★ Moyen'},{v:3,l:'★★★ Difficile'}].forEach(function(d) {
     var btn = document.createElement('button');
     btn.className = 'chip' + (filters.diffs.indexOf(d.v) >= 0 ? ' active' : '');
     btn.textContent = d.l;
@@ -291,10 +288,11 @@ function buildSwipeChips() {
     dc.appendChild(btn);
   });
 }
+
 function syncPublicUI() {
-  document.getElementById('tog-adult').classList.toggle('active', filters.adult);
-  document.getElementById('tog-explicit').classList.toggle('active', filters.explicit);
-  document.getElementById('tog-kids').classList.toggle('active', filters.kids);
+  document.getElementById('tog-adult').classList.toggle('active', !!filters.adult);
+  document.getElementById('tog-explicit').classList.toggle('active', !!filters.explicit);
+  document.getElementById('tog-kids').classList.toggle('active', !!filters.kids);
 }
 
 /* ── Chips Liste ── */
@@ -314,7 +312,7 @@ function buildListChips() {
   ALL_CATS.forEach(function(c) {
     var btn = document.createElement('button');
     btn.className = 'chip' + (listFilters.cats.indexOf(c) >= 0 ? ' active' : '');
-    btn.textContent = CAT_LABELS[c];
+    btn.textContent = CAT_LABELS[c] || c;
     btn.onclick = function() {
       var idx = listFilters.cats.indexOf(c);
       if (idx >= 0) { listFilters.cats.splice(idx,1); btn.classList.remove('active'); }
@@ -337,7 +335,7 @@ function buildListChips() {
     renderMimeList();
   };
   dc.appendChild(allD);
-  [{v:1,l:'★'},{v:2,l:'★★'},{v:3,l:'★★★'}].forEach(function(d) {
+  [{v:1,l:'★ Facile'},{v:2,l:'★★ Moyen'},{v:3,l:'★★★ Difficile'}].forEach(function(d) {
     var btn = document.createElement('button');
     btn.className = 'chip' + (listFilters.diffs.indexOf(d.v) >= 0 ? ' active' : '');
     btn.textContent = d.l;
@@ -351,6 +349,7 @@ function buildListChips() {
     dc.appendChild(btn);
   });
 }
+
 function listTogglePublic(key, btn) {
   listFilters[key] = !listFilters[key];
   if (key === 'kids' && listFilters.kids) {
@@ -362,24 +361,30 @@ function listTogglePublic(key, btn) {
     listFilters.kids = false;
     document.getElementById('l-kids').classList.remove('active');
   }
-  btn.classList.toggle('active', listFilters[key]);
+  btn.classList.toggle('active', !!listFilters[key]);
   renderMimeList();
 }
 
 /* ── Filtres Swipe ── */
 function toggleCat(c, btn) {
   var idx = filters.cats.indexOf(c);
-  if (idx >= 0) { if (filters.cats.length > 1) { filters.cats.splice(idx,1); btn.classList.remove('active'); } }
-  else          { filters.cats.push(c); btn.classList.add('active'); }
+  if (idx >= 0) {
+    if (filters.cats.length > 1) { filters.cats.splice(idx,1); btn.classList.remove('active'); }
+  } else {
+    filters.cats.push(c); btn.classList.add('active');
+  }
   saveFilters();
-  refreshTopCard(); /* ← live */
+  refreshTopCard();
 }
 function toggleDiff(d, btn) {
   var idx = filters.diffs.indexOf(d);
-  if (idx >= 0) { if (filters.diffs.length > 1) { filters.diffs.splice(idx,1); btn.classList.remove('active'); } }
-  else          { filters.diffs.push(d); btn.classList.add('active'); }
+  if (idx >= 0) {
+    if (filters.diffs.length > 1) { filters.diffs.splice(idx,1); btn.classList.remove('active'); }
+  } else {
+    filters.diffs.push(d); btn.classList.add('active');
+  }
   saveFilters();
-  refreshTopCard(); /* ← live */
+  refreshTopCard();
 }
 function togglePublic(key, btn) {
   filters[key] = !filters[key];
@@ -392,23 +397,21 @@ function togglePublic(key, btn) {
     filters.kids = false;
     document.getElementById('tog-kids').classList.remove('active');
   }
-  btn.classList.toggle('active', filters[key]);
+  btn.classList.toggle('active', !!filters[key]);
   saveFilters();
-  refreshTopCard(); /* ← live */
+  refreshTopCard();
 }
 
-/* ── Filtre live : remplace la carte du dessus si elle ne matche plus ── */
+/* ── Filtre live ── */
 function refreshTopCard() {
   if (!session.current) { rebuildDeck(); return; }
   var passes = applyFilters(getAllMimes()).some(function(m){ return m.id === session.current.id; });
   if (!passes) {
-    /* la carte visible ne passe plus : la remettre dans skipped et en montrer une nouvelle */
     session.skipped.push(session.current);
     session.current = null;
     session.deck.shift();
-    rebuildDeck();
   }
-  /* sinon on ne touche pas à la carte en cours, juste le deck derrière */
+  rebuildDeck();
 }
 
 /* ── Pool & filtres ── */
@@ -421,7 +424,7 @@ function applyFilters(all) {
     }
     if (filters.diffs.indexOf(m.difficulty) < 0) return false;
     if (m.public === 'explicit' && !filters.explicit) return false;
-    if (m.public === 'adult'    && !filters.adult && !filters.explicit) return false;
+    if (m.public === 'adult' && !filters.adult && !filters.explicit) return false;
     return true;
   });
 }
@@ -438,7 +441,6 @@ function resetSession() {
 function rebuildDeck() {
   var seenIds = session.validated.concat(session.skipped).map(function(m){ return m.id; });
   var pool = applyFilters(getAllMimes()).filter(function(m){ return seenIds.indexOf(m.id) < 0; });
-  /* shuffle */
   for (var i = pool.length-1; i > 0; i--) {
     var j = Math.floor(Math.random()*(i+1));
     var t = pool[i]; pool[i]=pool[j]; pool[j]=t;
@@ -463,7 +465,6 @@ function renderTopCard() {
 
   document.getElementById('deck-empty').classList.remove('visible');
 
-  /* afficher max 3 cartes en arrière-plan */
   var show = Math.min(3, session.deck.length);
   for (var i = show-1; i >= 0; i--) {
     var card = makeCard(session.deck[i], i === 0);
@@ -482,18 +483,19 @@ function makeCard(mime, isTop) {
 
   if (!isTop) return card;
 
-  /* Swipe touch/mouse */
   var startX = 0, curX = 0, dragging = false;
   function onStart(e) {
-    dragging = true; var p = e.touches ? e.touches[0] : e;
-    startX = p.clientX; card.style.transition = 'none';
+    dragging = true;
+    var p = e.touches ? e.touches[0] : e;
+    startX = p.clientX;
+    card.style.transition = 'none';
   }
   function onMove(e) {
     if (!dragging) return;
     var p = e.touches ? e.touches[0] : e;
     curX = p.clientX - startX;
     card.style.transform = 'translateX('+curX+'px) rotate('+(curX*.08)+'deg)';
-    var r = Math.min(Math.abs(curX)/100,1);
+    var r = Math.min(Math.abs(curX)/100, 1);
     card.querySelector('.hint-validate').style.opacity = curX >  20 ? r : 0;
     card.querySelector('.hint-skip').style.opacity    = curX < -20 ? r : 0;
   }
@@ -519,17 +521,16 @@ function flyOut(card, dir) {
   card.style.transition = 'transform .3s, opacity .3s';
   card.style.transform  = 'translateX('+(dir*500)+'px) rotate('+(dir*20)+'deg)';
   card.style.opacity    = '0';
-  setTimeout(function(){ if (dir > 0) doValidate(); else doSkip(); }, 200);
+  setTimeout(function() { if (dir > 0) doValidate(); else doSkip(); }, 200);
 }
 
 function doValidate() {
   if (!session.current) return;
-  var mime = session.current;
-  session.validated.push(mime);
+  session.validated.push(session.current);
   session.deck.shift();
   session.current = null;
   updateCounter();
-  showKwOverlay(mime);
+  showKwOverlay(session.validated[session.validated.length-1]);
 }
 function doSkip() {
   if (!session.current) return;
@@ -556,7 +557,7 @@ function closeKwOverlay() {
 function updateCounter() {
   var dots = document.getElementById('counter-dots');
   dots.innerHTML = '';
-  for (var i=0;i<8;i++) {
+  for (var i=0; i<8; i++) {
     var d = document.createElement('div');
     d.className = 'dot' + (i < session.validated.length ? ' filled' : '');
     dots.appendChild(d);
@@ -576,7 +577,7 @@ function showComplete() {
 
 function starsSvg(d) {
   var s = '';
-  for (var i=1;i<=3;i++)
+  for (var i=1; i<=3; i++)
     s += '<svg width="14" height="14" viewBox="0 0 24 24" fill="'+(i<=d?'currentColor':'none')+'" stroke="currentColor" stroke-width="1.5" class="'+(i>d?'empty':'')+'"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>';
   return s;
 }
@@ -591,7 +592,7 @@ function applyListFilters(all) {
     }
     if (listFilters.diffs.length > 0 && listFilters.diffs.indexOf(m.difficulty) < 0) return false;
     if (m.public === 'explicit' && !listFilters.explicit) return false;
-    if (m.public === 'adult'    && !listFilters.adult && !listFilters.explicit) return false;
+    if (m.public === 'adult' && !listFilters.adult && !listFilters.explicit) return false;
     return true;
   });
 }
@@ -618,7 +619,7 @@ function buildCatSelect() {
   sel.innerHTML = '';
   ALL_CATS.forEach(function(c) {
     var o = document.createElement('option');
-    o.value=c; o.textContent=CAT_LABELS[c]; sel.appendChild(o);
+    o.value=c; o.textContent=CAT_LABELS[c]||c; sel.appendChild(o);
   });
 }
 function eGo(tab) {
@@ -636,10 +637,10 @@ function setDiff(d,btn) {
   btn.classList.add('active');
 }
 function doAdd() {
-  var label   = document.getElementById('a-label').value.trim();
+  var label = document.getElementById('a-label').value.trim();
   if (!label) { showNotice('na-err','na-ok','Le label est obligatoire.'); return; }
-  var kids    = document.getElementById('a-kids').checked;
-  var local   = getLocal();
+  var kids  = document.getElementById('a-kids').checked;
+  var local = getLocal();
   local.push({
     id:'local_'+Date.now(), label:label,
     category: document.getElementById('a-cat').value,
@@ -647,7 +648,7 @@ function doAdd() {
     public: document.getElementById('a-public').value,
     keyword: '',
     tags: kids ? ['enfants'] : [],
-    _local:true
+    _local: true
   });
   saveLocal(local);
   showNotice('na-ok','na-err','Mime ajouté : '+label);
@@ -700,8 +701,6 @@ function doReset(){
   localStorage.removeItem(LS_LOCAL); localStorage.removeItem(LS_HIDDEN);
   buildLocalList(); buildHiddenList();
 }
-
-/* ── Helpers ── */
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function showNotice(showId,hideId,msg){
   var a=document.getElementById(showId), b=document.getElementById(hideId);
@@ -709,6 +708,13 @@ function showNotice(showId,hideId,msg){
   setTimeout(function(){ a.style.display='none'; },3000);
 }
 function flashMsg(id,msg){ var el=document.getElementById(id); el.textContent=msg; setTimeout(function(){ el.textContent=''; },2000); }
+
+/* ── Init ── */
+document.addEventListener('DOMContentLoaded', function() {
+  buildSwipeChips();
+  syncPublicUI();
+  updateCounter();
+});
 </script>
 </body>
 </html>
