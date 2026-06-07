@@ -14,23 +14,28 @@
       align-items: center;
       justify-content: center;
       min-height: 100vh;
-      gap: 48px;
+      gap: 36px;
+      padding: 24px;
     }
 
+    /* Logo Sensas — grand, bien visible */
     .main-logo {
-      width: 64px;
-      height: 64px;
+      width: min(80vw, 340px);
+      height: auto;
       object-fit: contain;
-      opacity: .55;
+      display: block;
     }
 
+    /* Rang des sens */
     .tools-row {
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 52px;
+      gap: 20px;
+      flex-wrap: wrap;
     }
 
+    /* Bouton actif */
     .tool-btn {
       background: none;
       border: none;
@@ -43,17 +48,56 @@
       justify-content: center;
       transition: transform .18s cubic-bezier(.16,1,.3,1), opacity .18s;
     }
-    .tool-btn:hover  { transform: scale(1.08); }
-    .tool-btn:active { transform: scale(.94); opacity: .7; }
+    .tool-btn:hover  { transform: scale(1.1); }
+    .tool-btn:active { transform: scale(.93); opacity: .7; }
 
     .tool-btn img {
-      width: 110px;
-      height: 110px;
+      width: 80px;
+      height: 80px;
       object-fit: contain;
       display: block;
       filter: drop-shadow(0 6px 18px rgba(0,0,0,.45));
     }
 
+    /* Bouton inactif — N&B 75% */
+    .tool-btn-soon {
+      background: none;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      outline: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .tool-btn-soon img {
+      width: 80px;
+      height: 80px;
+      object-fit: contain;
+      display: block;
+      filter: grayscale(100%) brightness(.75);
+      transition: filter .15s;
+    }
+    .tool-btn-soon:hover img {
+      filter: grayscale(100%) brightness(.9);
+    }
+
+    /* Animation shake (non) */
+    @keyframes shake {
+      0%   { transform: translateX(0); }
+      15%  { transform: translateX(-8px) rotate(-3deg); }
+      35%  { transform: translateX(8px)  rotate(3deg); }
+      55%  { transform: translateX(-6px) rotate(-2deg); }
+      72%  { transform: translateX(5px)  rotate(2deg); }
+      85%  { transform: translateX(-3px); }
+      100% { transform: translateX(0); }
+    }
+    .tool-btn-soon.shaking img {
+      animation: shake .45s cubic-bezier(.36,.07,.19,.97) both;
+    }
+
+    /* Overlay splash */
     #splash {
       position: fixed;
       inset: 0;
@@ -83,12 +127,29 @@
 
   <div class="tools-row">
 
+    <!-- Bouche — actif -->
     <button class="tool-btn" onclick="navigate('gout.html', '#7c3aed')" aria-label="Salle des Goûts">
       <img src="images/sens/bouche.png" alt="Bouche">
     </button>
 
+    <!-- Nez — bientôt -->
+    <button class="tool-btn-soon" onclick="shake(this)" aria-label="Bientôt disponible">
+      <img src="images/sens/nez.png" alt="Nez">
+    </button>
+
+    <!-- Oreille — actif -->
     <button class="tool-btn" onclick="navigate('ouie.html', '#c0152a')" aria-label="Salle des Mimes">
       <img src="images/sens/oreille.png" alt="Oreille">
+    </button>
+
+    <!-- Oeil — bientôt -->
+    <button class="tool-btn-soon" onclick="shake(this)" aria-label="Bientôt disponible">
+      <img src="images/sens/oeil.png" alt="Oeil">
+    </button>
+
+    <!-- Main — bientôt -->
+    <button class="tool-btn-soon" onclick="shake(this)" aria-label="Bientôt disponible">
+      <img src="images/sens/main.png" alt="Main">
     </button>
 
   </div>
@@ -100,9 +161,16 @@ function navigate(url, color) {
   var splash = document.getElementById('splash');
   splash.style.background = color;
   splash.classList.add('go');
-  setTimeout(function() {
-    window.location.href = url;
-  }, 380);
+  setTimeout(function() { window.location.href = url; }, 380);
+}
+
+function shake(btn) {
+  btn.classList.remove('shaking');
+  void btn.offsetWidth; /* reset animation */
+  btn.classList.add('shaking');
+  btn.addEventListener('animationend', function() {
+    btn.classList.remove('shaking');
+  }, { once: true });
 }
 </script>
 
