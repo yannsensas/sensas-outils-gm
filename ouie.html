@@ -15,6 +15,16 @@
 </head>
 <body>
 
+<!-- ══ TOAST ══ -->
+<div id="kw-toast" class="kw-toast" onclick="dismissToast()">
+  <div class="kw-toast-step"  id="toast-step"></div>
+  <div class="kw-toast-word"  id="toast-word"></div>
+  <div class="kw-toast-mime"  id="toast-mime"></div>
+  <div class="kw-toast-bar">
+    <div class="kw-toast-progress" id="toast-progress"></div>
+  </div>
+</div>
+
 <!-- ══ ACCUEIL ══ -->
 <div id="s-home" class="screen active">
   <div class="home-wrap">
@@ -182,15 +192,6 @@
   </div>
 </div>
 
-<!-- ══ KW OVERLAY ══ -->
-<div id="kw-overlay" class="kw-overlay">
-  <div class="kw-step" id="kw-step">MOT 1 / 8</div>
-  <div class="kw-label">Transmettez ce mot au binôme</div>
-  <div class="kw-word" id="kw-word"></div>
-  <div class="kw-mime" id="kw-mime"></div>
-  <button class="btn btn-primary" onclick="closeKwOverlay()">Continuer</button>
-</div>
-
 <script>
 'use strict';
 
@@ -209,9 +210,9 @@ var addDiff    = 2;
 var session    = { validated:[], skipped:[], deck:[], current:null };
 var filtersOpen = false;
 var listFilters = { cats:[], diffs:[], adult:true, explicit:false, kids:true };
-
-/* drag state global (prévient la perte du drag si la souris sort de la carte) */
 var drag = { active:false, card:null, startX:0, curX:0 };
+var toastTimer = null;
+var toastRaf   = null;
 
 function getLocal()  { try { return JSON.parse(localStorage.getItem(LS_LOCAL)  || '[]'); } catch(e){ return []; } }
 function getHidden() { try { return JSON.parse(localStorage.getItem(LS_HIDDEN) || '[]'); } catch(e){ return []; } }
@@ -373,15 +374,10 @@ function togglePublic(key,btn){
   btn.classList.toggle('active',!!filters[key]);
   saveFilters(); refreshTopCard();
 }
-
 function refreshTopCard(){
   if(session.current){
     var passes=applyFilters(getAllMimes()).some(function(m){return m.id===session.current.id;});
-    if(!passes){
-      session.skipped.push(session.current);
-      session.current=null;
-      session.deck.shift();
-    }
+    if(!passes){ session.skipped.push(session.current); session.current=null; session.deck.shift(); }
   }
   rebuildDeck();
 }
@@ -439,25 +435,18 @@ function renderTopCard(){
 }
 
 /* ── Carte ── */
-function makeCard(mime, isTop){
+function makeCard(mime,isTop){
   var card=document.createElement('div');
   card.className='mime-card'+(isTop?' is-top':' is-behind');
-  /* hints à l'intérieur de la carte */
   card.innerHTML=
     '<div class="swipe-hint hint-validate">VALIDÉ</div>'+
     '<div class="swipe-hint hint-skip">PASSÉ</div>'+
     '<div class="card-cat">'+esc(CAT_LABELS[mime.category]||mime.category).toUpperCase()+'</div>'+
     '<div class="card-label">'+esc(mime.label)+'</div>'+
     '<div class="card-diff">'+starsSvg(mime.difficulty)+'</div>';
-
   if(!isTop) return card;
-
-  var hintV=card.querySelector('.hint-validate');
-  var hintS=card.querySelector('.hint-skip');
-
   card.addEventListener('mousedown', startDrag);
   card.addEventListener('touchstart', startDrag, {passive:true});
-
   function startDrag(e){
     if(drag.active) return;
     var p=e.touches?e.touches[0]:e;
@@ -466,16 +455,14 @@ function makeCard(mime, isTop){
     card.style.transition='none';
     card.style.userSelect='none';
   }
-
   return card;
 }
 
-/* listeners globaux — ne perdent jamais le drag */
+/* drag global */
 document.addEventListener('mousemove', onDragMove);
 document.addEventListener('mouseup',   onDragEnd);
 document.addEventListener('touchmove', onDragMove, {passive:false});
 document.addEventListener('touchend',  onDragEnd);
-
 function onDragMove(e){
   if(!drag.active) return;
   e.preventDefault();
@@ -487,8 +474,7 @@ function onDragMove(e){
   c.querySelector('.hint-validate').style.opacity = drag.curX> 20 ? r : 0;
   c.querySelector('.hint-skip').style.opacity     = drag.curX<-20 ? r : 0;
 }
-
-function onDragEnd(e){
+function onDragEnd(){
   if(!drag.active) return;
   var c=drag.card;
   c.querySelector('.hint-validate').style.opacity=0;
@@ -500,7 +486,6 @@ function onDragEnd(e){
   else if(dx<-80){ flyOut(c,-1); }
   else { c.style.transition='transform .25s'; c.style.transform=''; }
 }
-
 function flyOut(card,dir){
   card.style.transition='transform .3s, opacity .25s';
   card.style.transform='translateX('+(dir*520)+'px) rotate('+(dir*22)+'deg)';
@@ -515,7 +500,10 @@ function doValidate(){
   session.deck.shift();
   session.current=null;
   updateCounter();
-  showKwOverlay(mime);
+  showKwToast(mime);
+  /* la prochaine carte s'affiche immédiatement derrière le toast */
+  if(session.validated.length<8) renderTopCard();
+  else showComplete();
 }
 function doSkip(){
   if(!session.current) return;
@@ -525,19 +513,45 @@ function doSkip(){
   renderTopCard();
 }
 
-function showKwOverlay(mime){
+/* ── Toast notification ── */
+var TOAST_DURATION = 10000; /* ms */
+function showKwToast(mime){
   var kws=(typeof keywords!=='undefined')?keywords:[];
   var idx=session.validated.length-1;
-  document.getElementById('kw-step').textContent='MOT '+(idx+1)+' / 8';
-  document.getElementById('kw-word').textContent=(kws[idx]||'—').toUpperCase();
-  document.getElementById('kw-mime').textContent=mime.label;
-  document.getElementById('kw-overlay').classList.add('visible');
+  var word=(kws[idx]||'—').toUpperCase();
+
+  document.getElementById('toast-step').textContent='MOT '+(idx+1)+' / 8';
+  document.getElementById('toast-word').textContent=word;
+  document.getElementById('toast-mime').textContent=mime.label;
+
+  /* réinitialise la barre */
+  var bar=document.getElementById('toast-progress');
+  bar.style.transition='none';
+  bar.style.width='100%';
+
+  /* affiche */
+  var toast=document.getElementById('kw-toast');
+  toast.classList.add('visible');
+
+  /* lance l'animation de la barre après un frame */
+  clearTimeout(toastTimer);
+  cancelAnimationFrame(toastRaf);
+  toastRaf=requestAnimationFrame(function(){
+    requestAnimationFrame(function(){
+      bar.style.transition='width '+TOAST_DURATION+'ms linear';
+      bar.style.width='0%';
+    });
+  });
+
+  toastTimer=setTimeout(dismissToast, TOAST_DURATION);
 }
-function closeKwOverlay(){
-  document.getElementById('kw-overlay').classList.remove('visible');
-  if(session.validated.length>=8){showComplete();return;}
-  renderTopCard();
+function dismissToast(){
+  clearTimeout(toastTimer);
+  cancelAnimationFrame(toastRaf);
+  var toast=document.getElementById('kw-toast');
+  toast.classList.remove('visible');
 }
+
 function updateCounter(){
   var dots=document.getElementById('counter-dots');
   dots.innerHTML='';
@@ -549,6 +563,7 @@ function updateCounter(){
   document.getElementById('counter-text').textContent=session.validated.length+' / 8';
 }
 function showComplete(){
+  dismissToast();
   var kws=(typeof keywords!=='undefined')?keywords:[];
   document.getElementById('session-complete').classList.add('visible');
   var div=document.getElementById('complete-keywords');

@@ -1,10 +1,8 @@
 /* ═══════════════════════════════════════════════════════
    style-ouie.css — Salle de l'Ouïé / Mimes
-   Couleurs & composants spécifiques à cet atelier.
    Nécessite style-commun.css chargé en premier.
    ═══════════════════════════════════════════════════════ */
 
-/* ── Accent Ouïé (rouge vif) ── */
 :root {
   --accent:      #c0152a;
   --accent-dim:  #8a0d1e;
@@ -12,10 +10,71 @@
   --accent-glow: rgba(192,21,42,.22);
 }
 
-/* ── Home : titre en accent ── */
 .home-hero h1 { color: var(--accent); }
 
-/* ── Notch filtre (Swipe uniquement) ── */
+/* ── Toast notification ── */
+.kw-toast {
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-120%);
+  z-index: 500;
+  width: calc(100% - 32px);
+  max-width: 440px;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: 16px;
+  padding: 14px 18px 0;
+  box-shadow: 0 8px 32px rgba(0,0,0,.55);
+  cursor: pointer;
+  transition: transform .35s cubic-bezier(.16,1,.3,1),
+              opacity .3s ease;
+  opacity: 0;
+  overflow: hidden;
+  user-select: none;
+}
+.kw-toast.visible {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+.kw-toast-step {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 4px;
+}
+.kw-toast-word {
+  font-family: var(--font-display, 'Cubano', sans-serif);
+  font-size: clamp(1.4rem, 6vw, 2rem);
+  color: var(--text);
+  line-height: 1.1;
+  letter-spacing: .04em;
+}
+.kw-toast-mime {
+  font-size: .78rem;
+  color: var(--muted);
+  margin-top: 3px;
+  margin-bottom: 12px;
+}
+/* barre timer */
+.kw-toast-bar {
+  height: 3px;
+  background: var(--surface2);
+  margin: 0 -18px;
+  border-radius: 0 0 16px 16px;
+  overflow: hidden;
+}
+.kw-toast-progress {
+  height: 100%;
+  width: 100%;
+  background: var(--accent);
+  border-radius: 0 0 16px 16px;
+  transform-origin: left;
+}
+
+/* ── Notch filtre ── */
 .filter-notch {
   display: flex;
   align-items: center;
@@ -46,8 +105,7 @@
   opacity: 0;
   pointer-events: none;
   transition: max-height .32s cubic-bezier(.16,1,.3,1),
-              opacity .25s ease,
-              padding .28s cubic-bezier(.16,1,.3,1);
+              opacity .25s ease;
 }
 .filter-panel.open {
   max-height: 320px;
@@ -63,7 +121,7 @@
   margin: 0 auto;
 }
 
-/* ── Filtre liste (toujours visible) ── */
+/* ── Filtre liste ── */
 .list-filter-bar {
   display: flex;
   flex-direction: column;
@@ -74,7 +132,7 @@
   flex-shrink: 0;
 }
 
-/* ── Écran Swipe ── */
+/* ── Swipe ── */
 #s-swipe { padding: 0; }
 .swipe-content { padding-top: 14px; }
 .session-counter {
@@ -121,6 +179,7 @@
   touch-action: none;
   will-change: transform;
   cursor: grab;
+  overflow: hidden;
 }
 .mime-card.is-top    { z-index: 3; box-shadow: 0 8px 32px rgba(0,0,0,.5); }
 .mime-card.is-behind { z-index: 1; transform: scale(.94) translateY(12px); }
@@ -140,9 +199,9 @@
   position: absolute;
   top: 14px;
   font-family: var(--font-display, 'Cubano', sans-serif);
-  font-size: 1rem;
+  font-size: .95rem;
   letter-spacing: .05em;
-  padding: 6px 14px;
+  padding: 5px 12px;
   border-radius: 8px;
   opacity: 0;
   pointer-events: none;
@@ -155,7 +214,7 @@
 .deck-empty.visible { display: block; }
 .deck-empty p { margin-top: 10px; font-size: 13px; }
 
-/* ── Boutons action swipe ── */
+/* ── Boutons action ── */
 .swipe-actions {
   display: flex;
   justify-content: center;
@@ -203,33 +262,6 @@
   font-weight: 700;
 }
 .complete-kw-chip span { display: block; color: var(--accent); font-size: 11px; font-weight: 500; }
-
-/* ── KW Overlay ── */
-.kw-overlay {
-  display: none;
-  position: fixed;
-  inset: 0;
-  z-index: 200;
-  background: rgba(14,13,13,.93);
-  backdrop-filter: blur(6px);
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 20px;
-  padding: 32px;
-  text-align: center;
-}
-.kw-overlay.visible { display: flex; }
-.kw-step  { font-size: 11px; color: var(--accent); font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
-.kw-label { font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
-.kw-word  {
-  font-family: var(--font-display, 'Cubano', sans-serif);
-  font-size: clamp(2rem,8vw,3rem);
-  color: var(--accent);
-  letter-spacing: .04em;
-  line-height: 1.1;
-}
-.kw-mime  { font-size: 13px; color: var(--muted); }
 
 /* ── Liste ── */
 .mime-list { list-style: none; }
