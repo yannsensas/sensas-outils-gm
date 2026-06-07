@@ -15,1104 +15,700 @@
       font-weight: 400;
       font-display: swap;
     }
-
-    /* Reset & base */
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { height: 100%; }
-    body {
-      min-height: 100dvh;
-      background: #0e0d0d;
-      color: #e8e4e4;
-      font-family: Montserrat, 'Helvetica Neue', sans-serif;
-      font-size: 16px;
-      -webkit-font-smoothing: antialiased;
-      overflow-x: hidden;
-    }
-    button { cursor: pointer; border: none; background: none; font: inherit; color: inherit; }
-    svg { display: block; }
-
-    /* Tokens */
-    :root {
-      --ouie: #c0152a;
-      --ouie-dim: #8a0d1e;
-      --ouie-glow: rgba(192,21,42,.2);
-      --bg: #0e0d0d;
-      --surface: #181616;
-      --surface2: #211e1e;
-      --border: rgba(255,255,255,.08);
-      --text: #e8e4e4;
-      --muted: #7a7070;
-      --faint: #3d3838;
-      --success: #2eb866;
-      --r: 0.375rem;
-      --r-md: 0.625rem;
-      --r-lg: 1rem;
-      --r-xl: 1.5rem;
-      --r-full: 9999px;
-      --ease: cubic-bezier(.16,1,.3,1);
-    }
-
-    /* App container */
-    #app { max-width: 480px; margin-inline: auto; min-height: 100dvh; display: flex; flex-direction: column; }
-
-    /* Topbar */
-    .topbar {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 14px 20px;
-      border-bottom: 1px solid var(--border);
-      flex-shrink: 0;
-    }
-    .topbar-left { display: flex; align-items: baseline; gap: 10px; }
-    .topbar-title {
-      font-family: Cubano, 'Arial Black', sans-serif;
-      font-size: clamp(1.5rem, 5vw, 2rem);
-      color: var(--ouie);
-      letter-spacing: .03em;
-      line-height: 1;
-    }
-    .topbar-sub { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
-    .back-btn {
-      display: none; align-items: center; gap: 6px;
-      color: var(--muted); font-size: 13px; font-weight: 600;
-      padding: 6px 10px; border-radius: var(--r-full);
-      background: var(--surface2);
-      transition: color 150ms var(--ease), background 150ms var(--ease);
-    }
-    .back-btn:active { background: var(--surface); color: var(--text); }
-    .back-btn.visible { display: flex; }
-
-    /* Screens */
-    .screen {
-      display: none; flex-direction: column; flex: 1;
-      padding: 24px 20px 28px;
-      animation: fadein .2s var(--ease) both;
-    }
-    .screen.active { display: flex; }
-    @keyframes fadein { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
-
-    /* HOME */
-    #screen-home { justify-content: center; gap: 14px; }
-    .home-header { margin-bottom: 32px; text-align: center; }
-    .home-header h1 {
-      font-family: Cubano, 'Arial Black', sans-serif;
-      font-size: clamp(2.2rem, 8vw, 3rem);
-      color: var(--ouie);
-      letter-spacing: .04em;
-      line-height: 1;
-    }
-    .home-header p { margin-top: 6px; font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .1em; }
-    .home-sense-img { display: block; margin: 0 auto 18px; width: 110px; height: 110px; object-fit: contain; }
-    .home-btn {
-      display: flex; align-items: center; gap: 16px;
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--r-xl); padding: 20px 22px; text-align: left;
-      transition: background 150ms var(--ease), border-color 150ms var(--ease), transform 120ms var(--ease);
-      min-height: 80px;
-    }
-    .home-btn:active { background: var(--surface2); transform: scale(.98); }
-    .home-btn-icon {
-      width: 48px; height: 48px; border-radius: var(--r-lg);
-      background: var(--ouie); display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0; box-shadow: 0 0 16px var(--ouie-glow);
-    }
-    .home-btn-icon svg { color: #fff; }
-    .home-btn-text strong { display: block; font-family: Cubano, 'Arial Black', sans-serif; font-size: 1.05rem; letter-spacing: .02em; color: var(--text); }
-    .home-btn-text span { display: block; font-size: 12px; color: var(--muted); margin-top: 2px; }
-    .home-btn-arrow { margin-left: auto; color: var(--faint); flex-shrink: 0; }
-
-    /* NOTCH filtre Swipe */
-    .filter-notch {
-      display: flex; align-items: center; justify-content: center;
-      height: 28px; cursor: pointer;
-      background: var(--surface2);
-      border-bottom: 1px solid var(--border);
-      flex-shrink: 0;
-      transition: background 150ms var(--ease);
-    }
-    .filter-notch:active, .filter-notch.open { background: var(--surface); }
-    .notch-arrow {
-      color: var(--muted);
-      transition: transform 280ms var(--ease);
-    }
-    .filter-notch.open .notch-arrow { transform: rotate(180deg); }
-
-    /* FILTERS PANEL — partagé Swipe & Liste */
-    .filters-panel {
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      flex-shrink: 0;
-      overflow: hidden;
-      transition: max-height 320ms var(--ease), opacity 250ms var(--ease), padding 280ms var(--ease);
-    }
-    .filters-panel.collapsed { max-height: 0 !important; opacity: 0; pointer-events: none; padding-top: 0; padding-bottom: 0; }
-    .filters-panel-inner { padding: 14px 20px; display: flex; flex-direction: column; gap: 12px; }
-    .filter-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-    .filter-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; min-width: 68px; }
-    .chip {
-      padding: 4px 12px; border-radius: var(--r-full);
-      font-size: 11px; font-weight: 600;
-      background: var(--surface2); color: var(--muted);
-      border: 1px solid var(--border);
-      transition: background 150ms var(--ease), color 150ms var(--ease), border-color 150ms var(--ease);
-      cursor: pointer; white-space: nowrap; min-height: 28px;
-      display: flex; align-items: center;
-    }
-    .chip.active { background: var(--ouie); color: #fff; border-color: var(--ouie); }
-    .toggles-row { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
-    .toggle-wrap { display: flex; align-items: center; gap: 8px; cursor: pointer; user-select: none; }
-    .toggle-label { font-size: 12px; color: var(--muted); }
-    .toggle { position: relative; width: 38px; height: 20px; flex-shrink: 0; }
-    .toggle input { opacity: 0; width: 0; height: 0; }
-    .toggle-slider {
-      position: absolute; inset: 0;
-      background: var(--surface2); border: 1px solid var(--border);
-      border-radius: var(--r-full);
-      transition: background 150ms var(--ease);
-    }
-    .toggle-slider::before {
-      content: ''; position: absolute;
-      width: 14px; height: 14px; left: 2px; top: 2px;
-      background: var(--muted); border-radius: 50%;
-      transition: transform 150ms var(--ease), background 150ms var(--ease);
-    }
-    .toggle input:checked ~ .toggle-slider { background: var(--ouie); border-color: var(--ouie); }
-    .toggle input:checked ~ .toggle-slider::before { transform: translateX(18px); background: #fff; }
-
-    /* Liste filter bar (toujours visible) */
-    .list-filter-bar {
-      padding: 10px 0 14px;
-      display: flex; flex-direction: column; gap: 12px;
-      flex-shrink: 0;
-    }
-
-    /* SWIPE SCREEN */
-    #screen-swipe { padding: 0; gap: 0; }
-    .swipe-body { display: flex; flex-direction: column; flex: 1; padding: 20px 20px 28px; gap: 0; }
-    .session-counter { display: flex; align-items: center; gap: 8px; margin-bottom: 18px; }
-    .counter-dots { display: flex; gap: 6px; flex: 1; }
-    .dot { flex: 1; height: 4px; border-radius: var(--r-full); background: var(--surface2); transition: background .3s var(--ease); }
-    .dot.filled { background: var(--ouie); }
-    .counter-text { font-size: 13px; color: var(--muted); font-weight: 600; white-space: nowrap; }
-    .card-stack {
-      position: relative; flex: 1;
-      display: flex; align-items: center; justify-content: center;
-      min-height: 260px;
-    }
-    .mime-card {
-      position: absolute; width: 100%;
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--r-xl);
-      padding: 40px 24px;
-      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
-      min-height: 240px;
-      user-select: none; touch-action: none;
-      will-change: transform;
-      cursor: grab;
-    }
-    .mime-card:active { cursor: grabbing; }
-    .mime-card.is-top { z-index: 3; box-shadow: 0 8px 32px rgba(0,0,0,.5); }
-    .mime-card.is-bg1 { z-index: 2; transform: scale(.96) translateY(10px); }
-    .mime-card.is-bg2 { z-index: 1; transform: scale(.92) translateY(20px); }
-    .card-cat { font-size: 11px; text-transform: uppercase; letter-spacing: .1em; color: var(--ouie); font-weight: 700; }
-    .card-label {
-      font-family: Cubano, 'Arial Black', sans-serif;
-      font-size: clamp(1.6rem, 6vw, 2.2rem);
-      text-align: center; line-height: 1.15; color: var(--text);
-    }
-    .card-diff { display: flex; gap: 4px; }
-    .card-diff svg { color: var(--ouie); }
-    .card-diff svg.empty { color: var(--faint); }
-    .swipe-hint {
-      position: absolute; top: 14px;
-      font-family: Cubano, 'Arial Black', sans-serif;
-      font-size: 1rem; letter-spacing: .05em;
-      padding: 6px 14px; border-radius: var(--r-md);
-      opacity: 0; pointer-events: none;
-    }
-    .hint-validate { right: 14px; background: rgba(46,184,102,.15); color: var(--success); border: 2px solid var(--success); }
-    .hint-skip    { left:  14px; background: rgba(68,64,64,.25);    color: var(--muted);   border: 2px solid #444; }
-    .deck-empty { text-align: center; color: var(--muted); padding: 48px 0; display: none; }
-    .deck-empty.visible { display: block; }
-    .deck-empty p { margin-top: 10px; font-size: 13px; }
-    .swipe-actions { display: flex; justify-content: center; gap: 28px; margin-top: 24px; }
-    .action-btn {
-      border-radius: var(--r-full);
-      display: flex; align-items: center; justify-content: center;
-      border: 2px solid var(--border);
-      transition: background 150ms var(--ease), transform 120ms var(--ease);
-    }
-    .action-btn:active { transform: scale(.91); }
-    .btn-skip { width: 60px; height: 60px; background: var(--surface2); }
-    .btn-validate { width: 68px; height: 68px; background: var(--ouie); border-color: var(--ouie); box-shadow: 0 0 20px var(--ouie-glow); }
-    .btn-validate:active { background: var(--ouie-dim); }
-    .session-done {
-      display: none; flex-direction: column; align-items: center; gap: 18px;
-      padding: 32px 20px; text-align: center;
-    }
-    .session-done.visible { display: flex; }
-    .done-title { font-family: Cubano, 'Arial Black', sans-serif; font-size: 1.5rem; color: var(--ouie); letter-spacing: .04em; }
-    .done-keywords { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
-    .done-kw {
-      background: var(--surface2); border: 1px solid var(--border);
-      border-radius: var(--r-full); padding: 6px 16px;
-      font-size: 13px; font-weight: 700;
-    }
-    .done-kw span { display: block; color: var(--ouie); font-size: 11px; font-weight: 500; }
-
-    /* KEYWORD OVERLAY */
-    #kw-overlay {
-      position: fixed; inset: 0; z-index: 200;
-      background: rgba(14,13,13,.93); backdrop-filter: blur(6px);
-      display: none; flex-direction: column; align-items: center; justify-content: center;
-      gap: 20px; padding: 32px;
-      animation: fadein .2s var(--ease) both;
-    }
-    #kw-overlay.visible { display: flex; }
-    .kw-step { font-size: 11px; color: var(--ouie); font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
-    .kw-label { font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
-    .kw-word {
-      font-family: Cubano, 'Arial Black', sans-serif;
-      font-size: clamp(2rem, 8vw, 3rem);
-      color: var(--ouie); text-align: center; letter-spacing: .04em; line-height: 1.1;
-    }
-    .kw-mime { font-size: 13px; color: var(--muted); text-align: center; }
-    .kw-continue {
-      margin-top: 12px; background: var(--ouie); color: #fff;
-      font-family: Cubano, 'Arial Black', sans-serif;
-      font-size: 1rem; letter-spacing: .04em;
-      padding: 14px 40px; border-radius: var(--r-full);
-      transition: background 150ms var(--ease);
-    }
-    .kw-continue:active { background: var(--ouie-dim); }
-
-    /* LISTE SCREEN */
-    #screen-liste { padding: 0; gap: 0; }
-    .list-body { display: flex; flex-direction: column; flex: 1; padding: 0 20px 28px; overflow: hidden; }
-    .mime-list { display: flex; flex-direction: column; gap: 8px; overflow-y: auto; flex: 1; padding-top: 4px; }
-    .mime-row {
-      display: flex; align-items: center; gap: 12px;
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--r-lg); padding: 12px 16px;
-    }
-    .mr-cat { font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: var(--ouie); font-weight: 700; min-width: 72px; }
-    .mr-label { flex: 1; font-size: 14px; font-weight: 600; }
-    .mr-diff { display: flex; gap: 2px; }
-    .mr-diff svg { color: var(--ouie); }
-    .mr-diff svg.empty { color: var(--faint); }
-    .mr-mask {
-      width: 30px; height: 30px; border-radius: var(--r-full);
-      display: flex; align-items: center; justify-content: center;
-      color: var(--muted);
-      transition: background 150ms var(--ease), color 150ms var(--ease);
-    }
-    .mr-mask:hover { background: rgba(192,21,42,.15); color: var(--ouie); }
-    .list-empty { color: var(--muted); font-size: 13px; text-align: center; padding: 48px 0; }
-    .list-section-title { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; padding: 4px 0 2px; }
-
-    /* ÉDITEUR SCREEN */
-    .editor-tabs {
-      display: flex; gap: 4px;
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--r-lg); padding: 4px;
-      margin-bottom: 18px; flex-shrink: 0;
-    }
-    .editor-tab {
-      flex: 1; padding: 7px 4px; border-radius: calc(var(--r-lg) - 2px);
-      font-size: 11px; font-weight: 600; color: var(--muted); text-align: center;
-      transition: background 150ms var(--ease), color 150ms var(--ease);
-      min-height: 34px; display: flex; align-items: center; justify-content: center;
-    }
-    .editor-tab.active { background: var(--surface2); color: var(--text); }
-    .editor-panel { display: none; flex-direction: column; gap: 14px; flex: 1; overflow-y: auto; }
-    .editor-panel.active { display: flex; }
-    .field-group { display: flex; flex-direction: column; gap: 6px; }
-    .field-label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; }
-    input[type=text], select, textarea {
-      background: var(--surface2); border: 1px solid var(--border);
-      border-radius: var(--r-md); color: var(--text);
-      font-family: Montserrat, sans-serif; font-size: 14px;
-      padding: 10px 14px; width: 100%; outline: none;
-      transition: border-color 150ms var(--ease);
-    }
-    input[type=text]:focus, select:focus { border-color: var(--ouie); }
-    select option { background: var(--surface2); }
-    .diff-selector { display: flex; gap: 8px; }
-    .diff-btn {
-      flex: 1; padding: 8px 4px; border-radius: var(--r-md);
-      border: 1px solid var(--border); background: var(--surface2);
-      color: var(--muted); font-size: 11px; font-weight: 600;
-      transition: all 150ms var(--ease); min-height: 38px;
-    }
-    .diff-btn.active { background: var(--ouie); border-color: var(--ouie); color: #fff; }
-    .local-item {
-      display: flex; align-items: center; gap: 10px;
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--r-md); padding: 10px 14px;
-    }
-    .li-label { flex: 1; font-size: 13px; font-weight: 600; }
-    .li-cat { font-size: 11px; color: var(--muted); }
-    .li-del {
-      width: 30px; height: 30px; border-radius: var(--r-full);
-      display: flex; align-items: center; justify-content: center;
-      color: var(--muted); transition: background 150ms, color 150ms;
-    }
-    .li-del:hover { background: rgba(192,21,42,.15); color: var(--ouie); }
-    .masked-item {
-      display: flex; align-items: center; gap: 10px;
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--r-md); padding: 10px 14px; opacity: .55;
-    }
-    .mi-label { flex: 1; font-size: 13px; text-decoration: line-through; }
-    .mi-restore { font-size: 12px; color: var(--ouie); font-weight: 600; }
-    .export-block {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--r-lg); padding: 14px 16px;
-      font-size: 12px; color: var(--muted); line-height: 1.6;
-    }
-    .export-block strong { color: var(--text); }
-
-    /* Buttons */
-    .btn-primary {
-      display: flex; align-items: center; justify-content: center; gap: 8px;
-      background: var(--ouie); color: #fff;
-      font-family: Cubano, 'Arial Black', sans-serif;
-      font-size: 1rem; letter-spacing: .04em;
-      padding: 18px 24px; border-radius: var(--r-lg);
-      transition: background 150ms var(--ease), transform 120ms var(--ease);
-      min-height: 56px;
-    }
-    .btn-primary:active { background: var(--ouie-dim); transform: scale(.98); }
-    .btn-secondary {
-      display: flex; align-items: center; justify-content: center; gap: 8px;
-      background: var(--surface2); color: var(--text);
-      font-size: 14px; font-weight: 600;
-      padding: 12px 20px; border-radius: var(--r-lg);
-      border: 1px solid var(--border);
-      transition: background 150ms var(--ease); min-height: 46px;
-    }
-    .btn-secondary:active { background: var(--surface); }
-    .btn-danger { border-color: rgba(192,21,42,.3); color: var(--ouie); }
-
-    /* Toast */
-    #toast-area {
-      position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-      z-index: 300; display: flex; flex-direction: column; gap: 8px;
-      pointer-events: none; width: calc(100% - 40px); max-width: 440px;
-    }
-    .toast {
-      background: var(--surface2); border: 1px solid var(--border);
-      border-radius: var(--r-lg); padding: 10px 20px;
-      font-size: 13px; font-weight: 600; color: var(--text); text-align: center;
-      animation: toast-in .25s var(--ease) both, toast-out .25s var(--ease) 2.2s both;
-    }
-    .toast.success { border-color: var(--success); color: var(--success); }
-    @keyframes toast-in  { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
-    @keyframes toast-out { from { opacity:1; } to { opacity:0; } }
-
-    /* Scrollbar */
-    ::-webkit-scrollbar { width: 4px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
   </style>
+  <link rel="stylesheet" href="style-commun.css">
+  <link rel="stylesheet" href="style-ouie.css">
+  <script src="keywords.js"></script>
+  <script src="mimes.js"></script>
 </head>
 <body>
-<div id="app">
 
-  <!-- Topbar -->
-  <header class="topbar">
-    <div class="topbar-left">
-      <div class="topbar-title">OUIÉ</div>
-      <div class="topbar-sub">Sensas Toulouse</div>
-    </div>
-    <button class="back-btn" id="back-btn" aria-label="Retour accueil">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-      Accueil
-    </button>
-  </header>
-
-  <!-- KEYWORD OVERLAY -->
-  <div id="kw-overlay">
-    <div class="kw-step" id="kw-step">MOT 1 / 8</div>
-    <div class="kw-label">Transmettez ce mot au binôme</div>
-    <div class="kw-word" id="kw-word"></div>
-    <div class="kw-mime" id="kw-mime"></div>
-    <button class="kw-continue" id="kw-continue">Continuer</button>
-  </div>
-
-  <!-- HOME -->
-  <div class="screen active" id="screen-home">
-    <div class="home-header">
-      <img src="images/sens/oreille.png" alt="Salle des Mimes" class="home-sense-img" width="110" height="110" loading="eager">
+<!-- ══ ACCUEIL ══ -->
+<div id="s-home" class="screen active">
+  <div class="home-wrap">
+    <div class="home-hero">
+      <img src="images/sens/oreille.png" alt="Ouïé" class="home-sense-img" width="120" height="120" loading="eager">
       <h1>MIMES</h1>
-      <p>Salle de l’Ouïé · Sensas</p>
+      <p>Salle de l'Ouïé — Outil GM</p>
     </div>
-    <button class="home-btn" data-goto="swipe">
-      <div class="home-btn-icon">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M18 8h1a4 4 0 0 1 0 8h-1"/>
-          <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/>
-          <line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/>
-        </svg>
-      </div>
-      <div class="home-btn-text"><strong>Mode Swipe</strong><span>Lancer une session de 8 mimes</span></div>
-      <div class="home-btn-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div>
-    </button>
-    <button class="home-btn" data-goto="liste">
-      <div class="home-btn-icon">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/>
-          <line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
-        </svg>
-      </div>
-      <div class="home-btn-text"><strong>Liste des mimes</strong><span>Parcourir la base complète</span></div>
-      <div class="home-btn-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div>
-    </button>
-    <button class="home-btn" data-goto="editor">
-      <div class="home-btn-icon">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-        </svg>
-      </div>
-      <div class="home-btn-text"><strong>Éditeur</strong><span>Gérer les mimes locaux</span></div>
-      <div class="home-btn-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div>
-    </button>
+    <button class="btn btn-primary" onclick="goSwipe()">Mode Swipe</button>
+    <button class="btn btn-secondary" onclick="showScreen('s-list')">Liste des mimes</button>
+    <button class="btn btn-secondary" onclick="showScreen('s-editor')">Éditeur</button>
   </div>
-
-  <!-- SWIPE -->
-  <div class="screen" id="screen-swipe">
-    <!-- Notch filtre -->
-    <div class="filter-notch" id="swipe-notch">
-      <svg class="notch-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
-    </div>
-    <!-- Panneau filtres (caché par défaut) -->
-    <div class="filters-panel collapsed" id="swipe-filters">
-      <div class="filters-panel-inner">
-        <div class="filter-row">
-          <span class="filter-label">Catégorie</span>
-          <div id="swipe-filter-cats" style="display:flex;gap:5px;flex-wrap:wrap"></div>
-        </div>
-        <div class="filter-row">
-          <span class="filter-label">Difficulté</span>
-          <div id="swipe-filter-diff" style="display:flex;gap:5px"></div>
-        </div>
-        <div class="toggles-row">
-          <label class="toggle-wrap">
-            <span class="toggle-label">Adulte</span>
-            <span class="toggle"><input type="checkbox" id="s-adult"><span class="toggle-slider"></span></span>
-          </label>
-          <label class="toggle-wrap">
-            <span class="toggle-label">Explicite</span>
-            <span class="toggle"><input type="checkbox" id="s-explicit"><span class="toggle-slider"></span></span>
-          </label>
-          <label class="toggle-wrap">
-            <span class="toggle-label">Enfants</span>
-            <span class="toggle"><input type="checkbox" id="s-kids" checked><span class="toggle-slider"></span></span>
-          </label>
-        </div>
-      </div>
-    </div>
-    <!-- Corps swipe -->
-    <div class="swipe-body">
-      <div class="session-counter">
-        <div class="counter-dots" id="counter-dots"></div>
-        <div class="counter-text" id="counter-text">0 / 8</div>
-      </div>
-      <div class="card-stack" id="card-stack">
-        <div class="deck-empty" id="deck-empty">
-          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><circle cx="12" cy="12" r="10"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-          <p>Plus de mimes disponibles<br>avec ces filtres.</p>
-        </div>
-      </div>
-      <div class="swipe-actions">
-        <button class="action-btn btn-skip" id="btn-skip" aria-label="Passer">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        </button>
-        <button class="action-btn btn-validate" id="btn-validate" aria-label="Valider">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-        </button>
-      </div>
-      <div class="session-done" id="session-done">
-        <div class="done-title">Session complète</div>
-        <div style="font-size:13px;color:var(--muted)">8 mimes validés &mdash; mots transmis :</div>
-        <div class="done-keywords" id="done-keywords"></div>
-        <button class="btn-primary" id="btn-restart" style="margin-top:8px">Nouvelle session</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- LISTE -->
-  <div class="screen" id="screen-liste">
-    <div class="list-body">
-      <div class="list-filter-bar">
-        <div class="filter-row">
-          <span class="filter-label">Catégorie</span>
-          <div id="list-filter-cats" style="display:flex;gap:5px;flex-wrap:wrap"></div>
-        </div>
-        <div class="filter-row">
-          <span class="filter-label">Difficulté</span>
-          <div id="list-filter-diff" style="display:flex;gap:5px"></div>
-        </div>
-        <div class="toggles-row">
-          <label class="toggle-wrap">
-            <span class="toggle-label">Adulte</span>
-            <span class="toggle"><input type="checkbox" id="l-adult"><span class="toggle-slider"></span></span>
-          </label>
-          <label class="toggle-wrap">
-            <span class="toggle-label">Explicite</span>
-            <span class="toggle"><input type="checkbox" id="l-explicit"><span class="toggle-slider"></span></span>
-          </label>
-          <label class="toggle-wrap">
-            <span class="toggle-label">Enfants</span>
-            <span class="toggle"><input type="checkbox" id="l-kids" checked><span class="toggle-slider"></span></span>
-          </label>
-        </div>
-      </div>
-      <div class="mime-list" id="mime-list"></div>
-    </div>
-  </div>
-
-  <!-- ÉDITEUR -->
-  <div class="screen" id="screen-editor">
-    <div class="editor-tabs">
-      <button class="editor-tab active" data-tab="add">Ajouter</button>
-      <button class="editor-tab" data-tab="local">Mes mimes</button>
-      <button class="editor-tab" data-tab="masked">Masqués</button>
-      <button class="editor-tab" data-tab="export">Export</button>
-    </div>
-    <div class="editor-panel active" id="tab-add">
-      <div class="field-group">
-        <label class="field-label" for="new-label">Intitulé</label>
-        <input type="text" id="new-label" placeholder="Ex : Pêcheur qui remonte un filet">
-      </div>
-      <div class="field-group">
-        <label class="field-label" for="new-cat">Catégorie</label>
-        <select id="new-cat"></select>
-      </div>
-      <div class="field-group">
-        <label class="field-label">Difficulté</label>
-        <div class="diff-selector">
-          <button class="diff-btn active" data-d="1">Facile</button>
-          <button class="diff-btn" data-d="2">Moyen</button>
-          <button class="diff-btn" data-d="3">Difficile</button>
-        </div>
-      </div>
-      <div class="field-group">
-        <label class="field-label" for="new-public">Public</label>
-        <select id="new-public">
-          <option value="all">Tout public</option>
-          <option value="adult">Adulte (suggestif)</option>
-          <option value="explicit">Explicite</option>
-        </select>
-      </div>
-      <label class="toggle-wrap" style="margin-top:4px">
-        <span class="toggle-label">Tag enfants</span>
-        <span class="toggle"><input type="checkbox" id="new-kids"><span class="toggle-slider"></span></span>
-      </label>
-      <button class="btn-primary" id="btn-add-mime" style="margin-top:4px">Ajouter le mime</button>
-    </div>
-    <div class="editor-panel" id="tab-local">
-      <div id="local-list"><div class="list-empty">Aucun mime local ajouté.</div></div>
-    </div>
-    <div class="editor-panel" id="tab-masked">
-      <div id="masked-list"><div class="list-empty">Aucun mime masqué.</div></div>
-    </div>
-    <div class="editor-panel" id="tab-export">
-      <div class="export-block">
-        <strong>Export des mimes locaux</strong><br>
-        Télécharge un fichier <code>mimes-local.js</code> contenant tes ajouts locaux, prêt à merger sur GitHub.
-      </div>
-      <button class="btn-secondary" id="btn-export">Télécharger mimes-local.js</button>
-      <div class="export-block" style="margin-top:4px">
-        <strong>Réinitialiser</strong><br>
-        Supprime tous les mimes locaux et masquages sur cet appareil.
-      </div>
-      <button class="btn-secondary btn-danger" id="btn-reset-local">Réinitialiser les données locales</button>
-    </div>
-  </div>
-
-  <div id="toast-area"></div>
 </div>
 
-<script src="keywords.js"></script>
-<script src="mimes.js"></script>
+<!-- ══ SWIPE ══ -->
+<div id="s-swipe" class="screen">
+  <div class="topbar">
+    <button class="btn-back" onclick="showScreen('s-home')">← Accueil</button>
+    <span>Mode Swipe</span>
+    <span style="width:60px"></span>
+  </div>
+
+  <!-- Notch filtre -->
+  <div class="filter-notch" id="swipe-notch" onclick="toggleFilters()">
+    <svg class="notch-arrow" id="notch-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+
+  <!-- Panneau filtres -->
+  <div class="filter-panel" id="filter-panel">
+    <div class="filter-inner">
+      <div class="filter-row">
+        <span class="filter-label">Catégorie</span>
+        <div class="chips" id="cat-chips"></div>
+      </div>
+      <div class="filter-row">
+        <span class="filter-label">Difficulté</span>
+        <div class="chips" id="diff-chips"></div>
+      </div>
+      <div class="filter-row">
+        <span class="filter-label">Public</span>
+        <div class="chips">
+          <button class="chip active" id="tog-adult"    onclick="togglePublic('adult',this)">Adulte</button>
+          <button class="chip"        id="tog-explicit" onclick="togglePublic('explicit',this)">Explicite</button>
+          <button class="chip active" id="tog-kids"     onclick="togglePublic('kids',this)">Enfants</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content swipe-content" id="swipe-content">
+    <!-- Compteur -->
+    <div class="session-counter">
+      <div class="counter-dots" id="counter-dots"></div>
+      <span class="counter-text" id="counter-text">0 / 8</span>
+    </div>
+
+    <!-- Stack de cartes -->
+    <div class="card-stack" id="card-stack">
+      <div class="swipe-hint hint-validate">VALIDÉ</div>
+      <div class="swipe-hint hint-skip">PASSÉ</div>
+      <div class="deck-empty" id="deck-empty">
+        <p>Plus de mimes disponibles<br>avec ces filtres.</p>
+        <button class="btn btn-secondary" style="margin-top:16px" onclick="resetSession()">Recommencer</button>
+      </div>
+    </div>
+
+    <!-- Boutons action -->
+    <div class="swipe-actions">
+      <button class="action-btn btn-skip"     onclick="doSkip()" title="Passer">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      <button class="action-btn btn-validate" onclick="doValidate()" title="Valider">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+      </button>
+    </div>
+
+    <!-- Session complète -->
+    <div class="session-complete" id="session-complete">
+      <div class="complete-title">Session complète !</div>
+      <p style="font-size:13px;color:var(--muted);margin-top:4px">8 mimes validés — mots transmis :</p>
+      <div class="complete-keywords" id="complete-keywords"></div>
+      <button class="btn btn-primary" style="margin-top:12px" onclick="resetSession()">Nouvelle session</button>
+      <button class="btn btn-secondary" onclick="showScreen('s-home')">Accueil</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ LISTE ══ -->
+<div id="s-list" class="screen">
+  <div class="topbar">
+    <button class="btn-back" onclick="showScreen('s-home')">← Accueil</button>
+    <span>Liste des mimes</span>
+    <span style="width:60px"></span>
+  </div>
+  <div class="content">
+    <div class="list-filter-bar">
+      <div class="filter-row">
+        <span class="filter-label">Catégorie</span>
+        <div class="chips" id="list-cat-chips"></div>
+      </div>
+      <div class="filter-row">
+        <span class="filter-label">Difficulté</span>
+        <div class="chips" id="list-diff-chips"></div>
+      </div>
+      <div class="filter-row">
+        <span class="filter-label">Public</span>
+        <div class="chips">
+          <button class="chip active" id="l-adult"    onclick="listTogglePublic('adult',this)">Adulte</button>
+          <button class="chip"        id="l-explicit" onclick="listTogglePublic('explicit',this)">Explicite</button>
+          <button class="chip active" id="l-kids"     onclick="listTogglePublic('kids',this)">Enfants</button>
+        </div>
+      </div>
+    </div>
+    <ul class="mime-list" id="mime-list"></ul>
+  </div>
+</div>
+
+<!-- ══ ÉDITEUR ══ -->
+<div id="s-editor" class="screen">
+  <div class="topbar">
+    <button class="btn-back" onclick="showScreen('s-home')">← Accueil</button>
+    <span>Éditeur</span>
+    <span></span>
+  </div>
+  <div class="content">
+    <div class="tabs">
+      <button class="tab on" id="t-add"    onclick="eGo('add')">Ajouter</button>
+      <button class="tab"    id="t-local"  onclick="eGo('local')">Mes mimes</button>
+      <button class="tab"    id="t-hidden" onclick="eGo('hidden')">Masqués</button>
+      <button class="tab"    id="t-export" onclick="eGo('export')">Export</button>
+    </div>
+
+    <div class="epanel on" id="ep-add">
+      <div class="notice n-ok"  id="na-ok"></div>
+      <div class="notice n-err" id="na-err"></div>
+      <label>Intitulé</label>
+      <input class="einput" id="a-label" type="text" placeholder="Ex: Dark Vador">
+      <label>Catégorie</label>
+      <select class="einput" id="a-cat"></select>
+      <label>Difficulté</label>
+      <div class="diff-selector">
+        <button class="diff-btn"        onclick="setDiff(1,this)">★ Facile</button>
+        <button class="diff-btn active" onclick="setDiff(2,this)">★★ Moyen</button>
+        <button class="diff-btn"        onclick="setDiff(3,this)">★★★ Difficile</button>
+      </div>
+      <label>Public</label>
+      <select class="einput" id="a-public">
+        <option value="all">Tout public</option>
+        <option value="adult">Adulte (suggestif)</option>
+        <option value="explicit">Explicite</option>
+      </select>
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+        <input type="checkbox" id="a-kids"> <span>Tag enfants</span>
+      </label>
+      <button class="btn btn-primary" style="margin-top:8px" onclick="doAdd()">Ajouter le mime</button>
+    </div>
+
+    <div class="epanel" id="ep-local">
+      <p class="list-hint">Mimes ajoutés sur cet appareil.</p>
+      <ul id="local-list"></ul>
+    </div>
+    <div class="epanel" id="ep-hidden">
+      <p class="list-hint">Mimes masqués sur cet appareil.</p>
+      <ul id="hidden-list"></ul>
+    </div>
+    <div class="epanel" id="ep-export">
+      <p class="list-hint">Export prêt à merger sur GitHub.</p>
+      <button class="btn btn-primary" onclick="doDl()"   style="margin-bottom:8px">Télécharger mimes-local.js</button>
+      <button class="btn btn-secondary" onclick="doCopy()">Copier</button>
+      <div class="fbm" id="exp-msg"></div>
+      <div class="exp-box" id="exp-box"></div>
+      <hr style="border-color:var(--border);margin:20px 0">
+      <button class="btn btn-secondary" style="border-color:rgba(192,21,42,.3);color:var(--accent)" onclick="doReset()">Réinitialiser les données locales</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ KW OVERLAY ══ -->
+<div id="kw-overlay" class="kw-overlay">
+  <div class="kw-step" id="kw-step">MOT 1 / 8</div>
+  <div class="kw-label">Transmettez ce mot au binôme</div>
+  <div class="kw-word" id="kw-word"></div>
+  <div class="kw-mime" id="kw-mime"></div>
+  <button class="btn btn-primary" onclick="closeKwOverlay()">Continuer</button>
+</div>
+
 <script>
 'use strict';
+var LS_LOCAL   = 'ouie_local';
+var LS_HIDDEN  = 'ouie_hidden';
+var LS_FILTERS = 'ouie_filters';
+var addDiff    = 2;
+var session    = { validated:[], skipped:[], deck:[], current:null };
+var filters    = loadFilters();
+var filtersOpen = false;
+var listFilters = { cats:[], diffs:[], adult:true, explicit:false, kids:true };
+var ALL_CATS = ['animaux','actions','metiers','sports','danses','personnages','personnalites','expressions','enfants','adulte'];
+var CAT_LABELS = {animaux:'Animaux',actions:'Actions',metiers:'Métiers',sports:'Sports',danses:'Danses',personnages:'Personnages',personnalites:'Personnalités',expressions:'Expressions',enfants:'Enfants',adulte:'Adulte'};
+var toastTimer = null;
 
-// Storage
-const LS_LOCAL  = 'ouie_local_mimes';
-const LS_MASKED = 'ouie_masked_ids';
-let localMimes = [];
-let maskedIds  = new Set();
+/* ── Storage ── */
+function getLocal()  { try { return JSON.parse(localStorage.getItem(LS_LOCAL)  || '[]'); } catch(e){ return []; } }
+function getHidden() { try { return JSON.parse(localStorage.getItem(LS_HIDDEN) || '[]'); } catch(e){ return []; } }
+function saveLocal(a) { localStorage.setItem(LS_LOCAL, JSON.stringify(a)); }
+function saveHidden(a){ localStorage.setItem(LS_HIDDEN, JSON.stringify(a)); }
+function getAllMimes() {
+  var base = (typeof mimes !== 'undefined') ? mimes : [];
+  var hidden = getHidden();
+  return base.concat(getLocal()).filter(function(m){ return hidden.indexOf(m.id) < 0; });
+}
+function defaultFilters() {
+  return { cats: ALL_CATS.slice(), diffs:[1,2,3], adult:true, explicit:false, kids:false };
+}
+function loadFilters() {
+  try { var f = JSON.parse(localStorage.getItem(LS_FILTERS)); return f || defaultFilters(); }
+  catch(e){ return defaultFilters(); }
+}
+function saveFilters() { localStorage.setItem(LS_FILTERS, JSON.stringify(filters)); }
 
-function saveLocal()  { try { localStorage.setItem(LS_LOCAL,  JSON.stringify(localMimes)); } catch(e){} }
-function saveMasked() { try { localStorage.setItem(LS_MASKED, JSON.stringify([...maskedIds])); } catch(e){} }
-function loadStorage() {
-  try { localMimes = JSON.parse(localStorage.getItem(LS_LOCAL))  || []; } catch(e) { localMimes = []; }
-  try { maskedIds  = new Set(JSON.parse(localStorage.getItem(LS_MASKED)) || []); } catch(e) { maskedIds = new Set(); }
+/* ── Navigation ── */
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+  if (id === 's-list') { buildListChips(); renderMimeList(); }
+  if (id === 's-editor') { buildCatSelect(); buildLocalList(); buildHiddenList(); }
 }
 
-// Filter state
-const fSwipe = { cats: new Set(), diff: new Set(), adult: false, explicit: false, kids: true };
-const fList  = { cats: new Set(), diff: new Set(), adult: false, explicit: false, kids: true };
+function goSwipe() {
+  showScreen('s-swipe');
+  buildSwipeChips();
+  syncPublicUI();
+  resetSession();
+}
 
-function buildPool(f) {
-  return (window.mimes || []).concat(localMimes).filter(function(m) {
-    if (maskedIds.has(m.id)) return false;
-    if (f.cats.size && !f.cats.has(m.category)) return false;
-    if (f.diff.size && !f.diff.has(m.difficulty)) return false;
-    if (f.kids && (!m.tags || !m.tags.includes('enfants'))) return false;
-    if (m.public === 'explicit' && !f.explicit) return false;
-    if (m.public === 'adult'    && !f.adult && !f.explicit) return false;
+/* ── Notch ── */
+function toggleFilters() {
+  filtersOpen = !filtersOpen;
+  document.getElementById('filter-panel').classList.toggle('open', filtersOpen);
+  document.getElementById('notch-arrow').style.transform = filtersOpen ? 'rotate(180deg)' : '';
+  document.getElementById('swipe-notch').classList.toggle('open', filtersOpen);
+}
+
+/* ── Chips Swipe ── */
+function buildSwipeChips() {
+  /* catégories */
+  var cc = document.getElementById('cat-chips');
+  cc.innerHTML = '';
+  ALL_CATS.forEach(function(c) {
+    var btn = document.createElement('button');
+    btn.className = 'chip' + (filters.cats.indexOf(c) >= 0 ? ' active' : '');
+    btn.textContent = CAT_LABELS[c];
+    btn.dataset.cat = c;
+    btn.onclick = function() { toggleCat(c, btn); };
+    cc.appendChild(btn);
+  });
+  /* difficultés */
+  var dc = document.getElementById('diff-chips');
+  dc.innerHTML = '';
+  [{v:1,l:'★'},{v:2,l:'★★'},{v:3,l:'★★★'}].forEach(function(d) {
+    var btn = document.createElement('button');
+    btn.className = 'chip' + (filters.diffs.indexOf(d.v) >= 0 ? ' active' : '');
+    btn.textContent = d.l;
+    btn.dataset.diff = d.v;
+    btn.onclick = function() { toggleDiff(d.v, btn); };
+    dc.appendChild(btn);
+  });
+}
+function syncPublicUI() {
+  document.getElementById('tog-adult').classList.toggle('active', filters.adult);
+  document.getElementById('tog-explicit').classList.toggle('active', filters.explicit);
+  document.getElementById('tog-kids').classList.toggle('active', filters.kids);
+}
+
+/* ── Chips Liste ── */
+function buildListChips() {
+  var cc = document.getElementById('list-cat-chips');
+  cc.innerHTML = '';
+  var all = document.createElement('button');
+  all.className = 'chip' + (listFilters.cats.length === 0 ? ' active' : '');
+  all.textContent = 'Toutes';
+  all.onclick = function() {
+    listFilters.cats = [];
+    cc.querySelectorAll('.chip').forEach(function(b){ b.classList.remove('active'); });
+    all.classList.add('active');
+    renderMimeList();
+  };
+  cc.appendChild(all);
+  ALL_CATS.forEach(function(c) {
+    var btn = document.createElement('button');
+    btn.className = 'chip' + (listFilters.cats.indexOf(c) >= 0 ? ' active' : '');
+    btn.textContent = CAT_LABELS[c];
+    btn.onclick = function() {
+      var idx = listFilters.cats.indexOf(c);
+      if (idx >= 0) { listFilters.cats.splice(idx,1); btn.classList.remove('active'); }
+      else          { listFilters.cats.push(c);       btn.classList.add('active'); }
+      all.classList.toggle('active', listFilters.cats.length === 0);
+      renderMimeList();
+    };
+    cc.appendChild(btn);
+  });
+  /* diff liste */
+  var dc = document.getElementById('list-diff-chips');
+  dc.innerHTML = '';
+  var allD = document.createElement('button');
+  allD.className = 'chip' + (listFilters.diffs.length === 0 ? ' active' : '');
+  allD.textContent = 'Toutes';
+  allD.onclick = function() {
+    listFilters.diffs = [];
+    dc.querySelectorAll('.chip').forEach(function(b){ b.classList.remove('active'); });
+    allD.classList.add('active');
+    renderMimeList();
+  };
+  dc.appendChild(allD);
+  [{v:1,l:'★'},{v:2,l:'★★'},{v:3,l:'★★★'}].forEach(function(d) {
+    var btn = document.createElement('button');
+    btn.className = 'chip' + (listFilters.diffs.indexOf(d.v) >= 0 ? ' active' : '');
+    btn.textContent = d.l;
+    btn.onclick = function() {
+      var idx = listFilters.diffs.indexOf(d.v);
+      if (idx >= 0) { listFilters.diffs.splice(idx,1); btn.classList.remove('active'); }
+      else          { listFilters.diffs.push(d.v);     btn.classList.add('active'); }
+      allD.classList.toggle('active', listFilters.diffs.length === 0);
+      renderMimeList();
+    };
+    dc.appendChild(btn);
+  });
+}
+function listTogglePublic(key, btn) {
+  listFilters[key] = !listFilters[key];
+  if (key === 'kids' && listFilters.kids) {
+    listFilters.explicit = false; listFilters.adult = false;
+    document.getElementById('l-explicit').classList.remove('active');
+    document.getElementById('l-adult').classList.remove('active');
+  }
+  if (key === 'explicit' && listFilters.explicit) {
+    listFilters.kids = false;
+    document.getElementById('l-kids').classList.remove('active');
+  }
+  btn.classList.toggle('active', listFilters[key]);
+  renderMimeList();
+}
+
+/* ── Filtres Swipe ── */
+function toggleCat(c, btn) {
+  var idx = filters.cats.indexOf(c);
+  if (idx >= 0) { if (filters.cats.length > 1) { filters.cats.splice(idx,1); btn.classList.remove('active'); } }
+  else          { filters.cats.push(c); btn.classList.add('active'); }
+  saveFilters();
+  refreshTopCard(); /* ← live */
+}
+function toggleDiff(d, btn) {
+  var idx = filters.diffs.indexOf(d);
+  if (idx >= 0) { if (filters.diffs.length > 1) { filters.diffs.splice(idx,1); btn.classList.remove('active'); } }
+  else          { filters.diffs.push(d); btn.classList.add('active'); }
+  saveFilters();
+  refreshTopCard(); /* ← live */
+}
+function togglePublic(key, btn) {
+  filters[key] = !filters[key];
+  if (key === 'kids' && filters.kids) {
+    filters.explicit = false; filters.adult = false;
+    document.getElementById('tog-explicit').classList.remove('active');
+    document.getElementById('tog-adult').classList.remove('active');
+  }
+  if (key === 'explicit' && filters.explicit) {
+    filters.kids = false;
+    document.getElementById('tog-kids').classList.remove('active');
+  }
+  btn.classList.toggle('active', filters[key]);
+  saveFilters();
+  refreshTopCard(); /* ← live */
+}
+
+/* ── Filtre live : remplace la carte du dessus si elle ne matche plus ── */
+function refreshTopCard() {
+  if (!session.current) { rebuildDeck(); return; }
+  var passes = applyFilters(getAllMimes()).some(function(m){ return m.id === session.current.id; });
+  if (!passes) {
+    /* la carte visible ne passe plus : la remettre dans skipped et en montrer une nouvelle */
+    session.skipped.push(session.current);
+    session.current = null;
+    session.deck.shift();
+    rebuildDeck();
+  }
+  /* sinon on ne touche pas à la carte en cours, juste le deck derrière */
+}
+
+/* ── Pool & filtres ── */
+function applyFilters(all) {
+  return all.filter(function(m) {
+    if (filters.kids) {
+      if (!m.tags || m.tags.indexOf('enfants') < 0) return false;
+    } else {
+      if (filters.cats.indexOf(m.category) < 0) return false;
+    }
+    if (filters.diffs.indexOf(m.difficulty) < 0) return false;
+    if (m.public === 'explicit' && !filters.explicit) return false;
+    if (m.public === 'adult'    && !filters.adult && !filters.explicit) return false;
     return true;
   });
 }
 
-function shuffle(arr) {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
+/* ── Session ── */
+function resetSession() {
+  session = { validated:[], skipped:[], deck:[], current:null };
+  document.getElementById('session-complete').classList.remove('visible');
+  document.getElementById('deck-empty').classList.remove('visible');
+  rebuildDeck();
+  updateCounter();
 }
-
-// Navigation
-const screens = ['home','swipe','liste','editor'];
-function showScreen(id) {
-  screens.forEach(function(s) {
-    document.getElementById('screen-' + s).classList.toggle('active', s === id);
-  });
-  const backBtn = document.getElementById('back-btn');
-  backBtn.classList.toggle('visible', id !== 'home');
-  if (id === 'swipe') startSession();
-  if (id === 'liste') renderList();
-}
-
-document.querySelectorAll('[data-goto]').forEach(function(btn) {
-  btn.addEventListener('click', function() { showScreen(btn.dataset.goto); });
-});
-document.getElementById('back-btn').addEventListener('click', function() { showScreen('home'); });
-
-// Notch swipe
-var swipeFiltersOpen = false;
-document.getElementById('swipe-notch').addEventListener('click', function() {
-  swipeFiltersOpen = !swipeFiltersOpen;
-  const panel = document.getElementById('swipe-filters');
-  const notch  = document.getElementById('swipe-notch');
-  panel.classList.toggle('collapsed', !swipeFiltersOpen);
-  notch.classList.toggle('open', swipeFiltersOpen);
-});
-
-// Filter UI builder
-function buildFilterUI(prefix, filterObj, onChange) {
-  const cats  = document.getElementById(prefix + '-filter-cats');
-  const diffs = document.getElementById(prefix + '-filter-diff');
-  cats.innerHTML = '';
-  diffs.innerHTML = '';
-
-  (window.MIMES_CATEGORIES || []).forEach(function(cat) {
-    const chip = document.createElement('button');
-    chip.className = 'chip';
-    chip.textContent = cat;
-    chip.addEventListener('click', function() {
-      chip.classList.toggle('active');
-      filterObj.cats.has(cat) ? filterObj.cats.delete(cat) : filterObj.cats.add(cat);
-      onChange();
-    });
-    cats.appendChild(chip);
-  });
-
-  [1, 2, 3].forEach(function(d) {
-    const chip = document.createElement('button');
-    chip.className = 'chip';
-    chip.textContent = '★'.repeat(d);
-    chip.addEventListener('click', function() {
-      chip.classList.toggle('active');
-      filterObj.diff.has(d) ? filterObj.diff.delete(d) : filterObj.diff.add(d);
-      onChange();
-    });
-    diffs.appendChild(chip);
-  });
-}
-
-// Toggles avec exclusivité Enfants ⇔ Explicite
-function bindToggles(pAdult, pExplicit, pKids, f, onChange) {
-  const tAdult    = document.getElementById(pAdult);
-  const tExplicit = document.getElementById(pExplicit);
-  const tKids     = document.getElementById(pKids);
-
-  tAdult.addEventListener('change', function(e) {
-    f.adult = e.target.checked;
-    onChange();
-  });
-  tExplicit.addEventListener('change', function(e) {
-    f.explicit = e.target.checked;
-    if (f.explicit) {
-      // Explicite active => désactiver Enfants
-      f.kids = false;
-      tKids.checked = false;
-    }
-    onChange();
-  });
-  tKids.addEventListener('change', function(e) {
-    f.kids = e.target.checked;
-    if (f.kids) {
-      // Enfants activé => désactiver Explicite + Adulte
-      f.explicit = false;
-      f.adult    = false;
-      tExplicit.checked = false;
-      tAdult.checked    = false;
-    }
-    onChange();
-  });
-}
-
-// SESSION swipe
-const TARGET = 8;
-const session = { deck: [], idx: 0, validated: [] };
 
 function rebuildDeck() {
-  const validatedIds = new Set(session.validated.map(function(v) { return v.mime.id; }));
-  const pool = buildPool(fSwipe).filter(function(m) { return !validatedIds.has(m.id); });
-  session.deck = shuffle(pool);
-  session.idx  = 0;
-}
-function startSession() {
-  const pool = buildPool(fSwipe);
-  session.deck = shuffle(pool);
-  session.idx  = 0;
-  session.validated = [];
-  renderSession();
+  var seenIds = session.validated.concat(session.skipped).map(function(m){ return m.id; });
+  var pool = applyFilters(getAllMimes()).filter(function(m){ return seenIds.indexOf(m.id) < 0; });
+  /* shuffle */
+  for (var i = pool.length-1; i > 0; i--) {
+    var j = Math.floor(Math.random()*(i+1));
+    var t = pool[i]; pool[i]=pool[j]; pool[j]=t;
+  }
+  session.deck = pool;
+  renderTopCard();
 }
 
-function renderSession() {
-  const done    = document.getElementById('session-done');
-  const stack   = document.getElementById('card-stack');
-  const empty   = document.getElementById('deck-empty');
-  const actions = document.querySelector('.swipe-actions');
-  const dotsEl  = document.getElementById('counter-dots');
+function renderTopCard() {
+  var stack = document.getElementById('card-stack');
+  stack.querySelectorAll('.mime-card').forEach(function(c){ c.remove(); });
 
-  dotsEl.innerHTML = '';
-  for (let i = 0; i < TARGET; i++) {
-    const d = document.createElement('div');
-    d.className = 'dot' + (i < session.validated.length ? ' filled' : '');
-    dotsEl.appendChild(d);
-  }
-  document.getElementById('counter-text').textContent = session.validated.length + ' / ' + TARGET;
+  if (session.validated.length >= 8) { showComplete(); return; }
 
-  if (session.validated.length >= TARGET) {
-    done.classList.add('visible');
-    stack.style.display = 'none';
-    actions.style.display = 'none';
-    renderDone();
-    return;
+  if (session.deck.length === 0) {
+    if (session.skipped.length > 0) {
+      session.deck = session.skipped.slice(); session.skipped = [];
+      renderTopCard(); return;
+    }
+    document.getElementById('deck-empty').classList.add('visible'); return;
   }
 
-  done.classList.remove('visible');
-  stack.style.display = '';
-  actions.style.display = '';
-  stack.querySelectorAll('.mime-card').forEach(function(c) { c.remove(); });
-  empty.classList.remove('visible');
+  document.getElementById('deck-empty').classList.remove('visible');
 
-  const remaining = session.deck.slice(session.idx);
-  if (!remaining.length) {
-    empty.classList.add('visible');
-    return;
+  /* afficher max 3 cartes en arrière-plan */
+  var show = Math.min(3, session.deck.length);
+  for (var i = show-1; i >= 0; i--) {
+    var card = makeCard(session.deck[i], i === 0);
+    stack.insertBefore(card, stack.firstChild);
   }
-
-  const top3 = remaining.slice(0, 3);
-  [...top3].reverse().forEach(function(mime, ri) {
-    const isTop = ri === top3.length - 1;
-    const cls = isTop ? 'is-top' : (ri === top3.length - 2 ? 'is-bg1' : 'is-bg2');
-    const card = makeCard(mime, cls);
-    if (isTop) initSwipe(card, mime);
-    stack.insertBefore(card, empty);
-  });
+  session.current = session.deck[0];
 }
 
-function makeCard(mime, cls) {
-  const card = document.createElement('div');
-  card.className = 'mime-card ' + cls;
-  card.dataset.id = mime.id;
+function makeCard(mime, isTop) {
+  var card = document.createElement('div');
+  card.className = 'mime-card' + (isTop ? ' is-top' : ' is-behind');
+  card.innerHTML =
+    '<div class="card-cat">' + esc(CAT_LABELS[mime.category] || mime.category).toUpperCase() + '</div>' +
+    '<div class="card-label">' + esc(mime.label) + '</div>' +
+    '<div class="card-diff">' + starsSvg(mime.difficulty) + '</div>';
 
-  const hV = document.createElement('div'); hV.className = 'swipe-hint hint-validate'; hV.textContent = 'VALIDÉ';
-  const hS = document.createElement('div'); hS.className = 'swipe-hint hint-skip';     hS.textContent = 'PASSÉ';
-  const cat  = document.createElement('div'); cat.className  = 'card-cat';   cat.textContent  = mime.category.toUpperCase();
-  const lbl  = document.createElement('div'); lbl.className  = 'card-label'; lbl.textContent  = mime.label;
-  const diff = document.createElement('div'); diff.className = 'card-diff';
+  if (!isTop) return card;
 
-  for (let i = 1; i <= 3; i++) {
-    const s = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    s.setAttribute('viewBox', '0 0 24 24'); s.setAttribute('width', '15'); s.setAttribute('height', '15');
-    s.setAttribute('fill', i <= mime.difficulty ? 'currentColor' : 'none');
-    s.setAttribute('stroke', 'currentColor'); s.setAttribute('stroke-width', '2');
-    if (i > mime.difficulty) s.classList.add('empty');
-    s.innerHTML = '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>';
-    diff.appendChild(s);
-  }
-  card.append(hV, hS, cat, lbl, diff);
-  return card;
-}
-
-function initSwipe(card, mime) {
-  let startX = 0, startY = 0, dx = 0, dragging = false;
-  const hV = card.querySelector('.hint-validate');
-  const hS = card.querySelector('.hint-skip');
-
+  /* Swipe touch/mouse */
+  var startX = 0, curX = 0, dragging = false;
   function onStart(e) {
-    const p = e.touches ? e.touches[0] : e;
-    startX = p.clientX; startY = p.clientY; dragging = true;
-    card.style.transition = 'none';
+    dragging = true; var p = e.touches ? e.touches[0] : e;
+    startX = p.clientX; card.style.transition = 'none';
   }
   function onMove(e) {
     if (!dragging) return;
-    const p = e.touches ? e.touches[0] : e;
-    dx = p.clientX - startX;
-    const dy = p.clientY - startY;
-    card.style.transform = 'translateX(' + dx + 'px) translateY(' + dy * .3 + 'px) rotate(' + dx * .07 + 'deg)';
-    const r = Math.min(Math.abs(dx) / 80, 1);
-    hV.style.opacity = dx > 0 ? r : 0;
-    hS.style.opacity = dx < 0 ? r : 0;
-    if (e.cancelable) e.preventDefault();
+    var p = e.touches ? e.touches[0] : e;
+    curX = p.clientX - startX;
+    card.style.transform = 'translateX('+curX+'px) rotate('+(curX*.08)+'deg)';
+    var r = Math.min(Math.abs(curX)/100,1);
+    card.querySelector('.hint-validate').style.opacity = curX >  20 ? r : 0;
+    card.querySelector('.hint-skip').style.opacity    = curX < -20 ? r : 0;
   }
   function onEnd() {
-    if (!dragging) return;
-    dragging = false;
-    hV.style.opacity = hS.style.opacity = 0;
-    if      (dx >  80) finalize('validate', mime, card);
-    else if (dx < -80) finalize('skip',     mime, card);
-    else { card.style.transition = ''; card.style.transform = ''; }
+    if (!dragging) return; dragging = false;
+    card.querySelector('.hint-validate').style.opacity = 0;
+    card.querySelector('.hint-skip').style.opacity    = 0;
+    if      (curX >  80) flyOut(card,  1);
+    else if (curX < -80) flyOut(card, -1);
+    else { card.style.transition=''; card.style.transform=''; }
+    curX = 0;
   }
-
-  card.addEventListener('touchstart',  onStart, { passive: true });
-  card.addEventListener('touchmove',   onMove,  { passive: false });
-  card.addEventListener('touchend',    onEnd);
-  card.addEventListener('mousedown',   onStart);
-  window.addEventListener('mousemove', onMove);
-  window.addEventListener('mouseup',   onEnd);
+  card.addEventListener('mousedown',  onStart);
+  card.addEventListener('mousemove',  onMove);
+  card.addEventListener('mouseup',    onEnd);
+  card.addEventListener('touchstart', onStart, {passive:true});
+  card.addEventListener('touchmove',  onMove,  {passive:true});
+  card.addEventListener('touchend',   onEnd);
+  return card;
 }
 
-function finalize(action, mime, card) {
-  const dir = action === 'validate' ? 1 : -1;
-  card.style.transition = 'transform .33s cubic-bezier(.16,1,.3,1), opacity .28s';
-  card.style.transform  = 'translateX(' + dir * 140 + '%) rotate(' + dir * 20 + 'deg)';
-  card.style.opacity = '0';
-  setTimeout(function() { card.remove(); }, 350);
-  session.idx++;
-  if (action === 'validate') {
-    const kwIdx = session.validated.length;
-    session.validated.push({ mime: mime, kwIdx: kwIdx });
-    showKeyword(mime, kwIdx);
-  } else {
-    session.deck.push(mime);
-    setTimeout(renderSession, 360);
-  }
+function flyOut(card, dir) {
+  card.style.transition = 'transform .3s, opacity .3s';
+  card.style.transform  = 'translateX('+(dir*500)+'px) rotate('+(dir*20)+'deg)';
+  card.style.opacity    = '0';
+  setTimeout(function(){ if (dir > 0) doValidate(); else doSkip(); }, 200);
 }
 
-function showKeyword(mime, kwIdx) {
-  const kws = window.keywords || [];
-  document.getElementById('kw-step').textContent = 'MOT ' + (kwIdx + 1) + ' / ' + TARGET;
-  document.getElementById('kw-word').textContent = (kws[kwIdx] || '').toUpperCase();
+function doValidate() {
+  if (!session.current) return;
+  var mime = session.current;
+  session.validated.push(mime);
+  session.deck.shift();
+  session.current = null;
+  updateCounter();
+  showKwOverlay(mime);
+}
+function doSkip() {
+  if (!session.current) return;
+  session.skipped.push(session.current);
+  session.deck.shift();
+  session.current = null;
+  renderTopCard();
+}
+
+function showKwOverlay(mime) {
+  var kws = (typeof keywords !== 'undefined') ? keywords : [];
+  var idx = session.validated.length - 1;
+  document.getElementById('kw-step').textContent = 'MOT ' + (idx+1) + ' / 8';
+  document.getElementById('kw-word').textContent = (kws[idx] || '—').toUpperCase();
   document.getElementById('kw-mime').textContent = mime.label;
   document.getElementById('kw-overlay').classList.add('visible');
-  document.getElementById('kw-continue').addEventListener('click', function() {
-    document.getElementById('kw-overlay').classList.remove('visible');
-    renderSession();
-  }, { once: true });
+}
+function closeKwOverlay() {
+  document.getElementById('kw-overlay').classList.remove('visible');
+  if (session.validated.length >= 8) { showComplete(); return; }
+  renderTopCard();
 }
 
-document.getElementById('btn-skip').addEventListener('click', function() {
-  const top = document.querySelector('.mime-card.is-top');
-  if (!top) return;
-  const mime = [...(window.mimes || []), ...localMimes].find(function(m) { return m.id === top.dataset.id; });
-  if (mime) finalize('skip', mime, top);
-});
-document.getElementById('btn-validate').addEventListener('click', function() {
-  const top = document.querySelector('.mime-card.is-top');
-  if (!top) return;
-  const mime = [...(window.mimes || []), ...localMimes].find(function(m) { return m.id === top.dataset.id; });
-  if (mime) finalize('validate', mime, top);
-});
-document.getElementById('btn-restart').addEventListener('click', startSession);
-
-function renderDone() {
-  const kws = window.keywords || [];
-  const c   = document.getElementById('done-keywords');
-  c.innerHTML = '';
-  session.validated.forEach(function(v, i) {
-    const chip = document.createElement('div');
-    chip.className = 'done-kw';
-    chip.innerHTML = (kws[i] || '').toUpperCase() + '<span>' + v.mime.label + '</span>';
-    c.appendChild(chip);
-  });
-}
-
-// LISTE
-function renderList() {
-  const pool = buildPool(fList);
-  const list = document.getElementById('mime-list');
-  list.innerHTML = '';
-  if (!pool.length) {
-    list.innerHTML = '<div class="list-empty">Aucun mime avec ces filtres.</div>';
-    return;
+function updateCounter() {
+  var dots = document.getElementById('counter-dots');
+  dots.innerHTML = '';
+  for (var i=0;i<8;i++) {
+    var d = document.createElement('div');
+    d.className = 'dot' + (i < session.validated.length ? ' filled' : '');
+    dots.appendChild(d);
   }
-  const cats = window.MIMES_CATEGORIES || [];
-  cats.forEach(function(cat) {
-    const group = pool.filter(function(m) { return m.category === cat; });
-    if (!group.length) return;
-    const title = document.createElement('div');
-    title.className = 'list-section-title';
-    title.textContent = cat.toUpperCase();
-    list.appendChild(title);
-    group.forEach(function(mime) {
-      const row = document.createElement('div');
-      row.className = 'mime-row';
-      const diff = Array.from({ length: 3 }, function(_, i) {
-        const s = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-        s.setAttribute('viewBox', '0 0 24 24'); s.setAttribute('width', '13'); s.setAttribute('height', '13');
-        s.setAttribute('fill', i + 1 <= mime.difficulty ? 'currentColor' : 'none');
-        s.setAttribute('stroke', 'currentColor'); s.setAttribute('stroke-width', '2');
-        if (i + 1 > mime.difficulty) s.classList.add('empty');
-        s.innerHTML = '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>';
-        return s;
-      });
-      const maskBtn = document.createElement('button');
-      maskBtn.className = 'mr-mask';
-      maskBtn.setAttribute('aria-label', 'Masquer');
-      maskBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
-      maskBtn.addEventListener('click', function() {
-        maskedIds.add(mime.id); saveMasked(); renderList(); toast('Mime masqué.');
-      });
-      const diffEl = document.createElement('div');
-      diffEl.className = 'mr-diff';
-      diff.forEach(function(s) { diffEl.appendChild(s); });
-      row.innerHTML = '<div class="mr-cat">' + mime.category + '</div><div class="mr-label">' + mime.label + '</div>';
-      row.appendChild(diffEl);
-      row.appendChild(maskBtn);
-      list.appendChild(row);
-    });
+  document.getElementById('counter-text').textContent = session.validated.length + ' / 8';
+}
+
+function showComplete() {
+  var kws = (typeof keywords !== 'undefined') ? keywords : [];
+  document.getElementById('session-complete').classList.add('visible');
+  var div = document.getElementById('complete-keywords');
+  div.innerHTML = '';
+  session.validated.forEach(function(m,i) {
+    div.innerHTML += '<div class="complete-kw-chip"><span>'+(i+1)+'. '+esc(m.label)+'</span>'+(kws[i]||'—').toUpperCase()+'</div>';
   });
 }
 
-// ÉDITEUR
-let newDiff = 1;
-function initEditor() {
-  const sel = document.getElementById('new-cat');
-  (window.MIMES_CATEGORIES || []).forEach(function(c) {
-    const o = document.createElement('option');
-    o.value = c; o.textContent = c;
-    sel.appendChild(o);
-  });
-  document.querySelectorAll('.diff-btn').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      document.querySelectorAll('.diff-btn').forEach(function(b) { b.classList.remove('active'); });
-      btn.classList.add('active');
-      newDiff = parseInt(btn.dataset.d);
-    });
-  });
-  document.querySelectorAll('.editor-tab').forEach(function(tab) {
-    tab.addEventListener('click', function() {
-      document.querySelectorAll('.editor-tab').forEach(function(t) { t.classList.remove('active'); });
-      document.querySelectorAll('.editor-panel').forEach(function(p) { p.classList.remove('active'); });
-      tab.classList.add('active');
-      document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
-      if (tab.dataset.tab === 'local')  renderLocalList();
-      if (tab.dataset.tab === 'masked') renderMaskedList();
-    });
-  });
-  document.getElementById('btn-add-mime').addEventListener('click', function() {
-    const label = document.getElementById('new-label').value.trim();
-    if (!label) { toast('Renseigne un intitulé.'); return; }
-    localMimes.push({
-      id: 'local_' + Date.now(), label: label,
-      category: document.getElementById('new-cat').value,
-      difficulty: newDiff,
-      public: document.getElementById('new-public').value,
-      tags: document.getElementById('new-kids').checked ? ['enfants'] : []
-    });
-    saveLocal();
-    document.getElementById('new-label').value = '';
-    toast('Mime ajouté.', 'success');
-  });
-  document.getElementById('btn-export').addEventListener('click', function() {
-    if (!localMimes.length) { toast('Aucun mime local à exporter.'); return; }
-    const content = 'const mimes_local = ' + JSON.stringify(localMimes, null, 2) + ';';
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(new Blob([content], { type: 'application/javascript' }));
-    a.download = 'mimes-local.js'; a.click();
-    URL.revokeObjectURL(a.href);
-  });
-  document.getElementById('btn-reset-local').addEventListener('click', function() {
-    if (!confirm('Supprimer tous les mimes locaux et masquages ?')) return;
-    localMimes = []; maskedIds = new Set();
-    saveLocal(); saveMasked();
-    renderLocalList(); renderMaskedList();
-    toast('Données réinitialisées.');
-  });
+function starsSvg(d) {
+  var s = '';
+  for (var i=1;i<=3;i++)
+    s += '<svg width="14" height="14" viewBox="0 0 24 24" fill="'+(i<=d?'currentColor':'none')+'" stroke="currentColor" stroke-width="1.5" class="'+(i>d?'empty':'')+'"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>';
+  return s;
 }
 
-function renderLocalList() {
-  const c = document.getElementById('local-list');
-  c.innerHTML = '';
-  if (!localMimes.length) { c.innerHTML = '<div class="list-empty">Aucun mime local ajouté.</div>'; return; }
-  localMimes.forEach(function(m) {
-    const item = document.createElement('div');
-    item.className = 'local-item';
-    item.innerHTML = '<div class="li-label">' + m.label + '</div><div class="li-cat">' + m.category + '</div>';
-    const del = document.createElement('button');
-    del.className = 'li-del';
-    del.setAttribute('aria-label', 'Supprimer');
-    del.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>';
-    del.addEventListener('click', function() {
-      localMimes = localMimes.filter(function(x) { return x.id !== m.id; });
-      saveLocal(); renderLocalList();
-    });
-    item.appendChild(del);
-    c.appendChild(item);
+/* ── Liste ── */
+function applyListFilters(all) {
+  return all.filter(function(m) {
+    if (listFilters.kids) {
+      if (!m.tags || m.tags.indexOf('enfants') < 0) return false;
+    } else {
+      if (listFilters.cats.length > 0 && listFilters.cats.indexOf(m.category) < 0) return false;
+    }
+    if (listFilters.diffs.length > 0 && listFilters.diffs.indexOf(m.difficulty) < 0) return false;
+    if (m.public === 'explicit' && !listFilters.explicit) return false;
+    if (m.public === 'adult'    && !listFilters.adult && !listFilters.explicit) return false;
+    return true;
   });
 }
-
-function renderMaskedList() {
-  const c = document.getElementById('masked-list');
-  c.innerHTML = '';
-  const masked = [...(window.mimes || []), ...localMimes].filter(function(m) { return maskedIds.has(m.id); });
-  if (!masked.length) { c.innerHTML = '<div class="list-empty">Aucun mime masqué.</div>'; return; }
-  masked.forEach(function(m) {
-    const item = document.createElement('div');
-    item.className = 'masked-item';
-    item.innerHTML = '<div class="mi-label">' + m.label + '</div>';
-    const restore = document.createElement('button');
-    restore.className = 'mi-restore'; restore.textContent = 'Restaurer';
-    restore.addEventListener('click', function() {
-      maskedIds.delete(m.id); saveMasked(); renderMaskedList(); toast('Mime restauré.', 'success');
-    });
-    item.appendChild(restore);
-    c.appendChild(item);
+function renderMimeList() {
+  var ul = document.getElementById('mime-list');
+  ul.innerHTML = '';
+  var pool = applyListFilters(getAllMimes());
+  if (!pool.length) { ul.innerHTML = '<li class="list-empty">Aucun mime.</li>'; return; }
+  pool.forEach(function(m) {
+    var li = document.createElement('li');
+    li.className = 'mime-list-item';
+    li.innerHTML =
+      '<div><div class="mli-label">'+esc(m.label)+'</div>'
+      +'<div class="mli-meta">'+(CAT_LABELS[m.category]||m.category)+' · '+starText(m.difficulty)+'</div></div>'
+      +'<div class="mli-kw">'+esc(m.keyword||'—')+'</div>';
+    ul.appendChild(li);
   });
 }
+function starText(d){ return '★'.repeat(d)+'☆'.repeat(3-d); }
 
-// Toast
-function toast(msg, type) {
-  const area = document.getElementById('toast-area');
-  const el   = document.createElement('div');
-  el.className = 'toast' + (type ? ' ' + type : '');
-  el.textContent = msg;
-  area.appendChild(el);
-  setTimeout(function() { el.remove(); }, 2700);
+/* ── Éditeur ── */
+function buildCatSelect() {
+  var sel = document.getElementById('a-cat');
+  sel.innerHTML = '';
+  ALL_CATS.forEach(function(c) {
+    var o = document.createElement('option');
+    o.value=c; o.textContent=CAT_LABELS[c]; sel.appendChild(o);
+  });
+}
+function eGo(tab) {
+  ['add','local','hidden','export'].forEach(function(t) {
+    document.getElementById('t-'+t).classList.toggle('on', t===tab);
+    document.getElementById('ep-'+t).classList.toggle('on', t===tab);
+  });
+  if (tab==='local')  buildLocalList();
+  if (tab==='hidden') buildHiddenList();
+  if (tab==='export') buildExport();
+}
+function setDiff(d,btn) {
+  addDiff=d;
+  document.querySelectorAll('.diff-btn').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+}
+function doAdd() {
+  var label   = document.getElementById('a-label').value.trim();
+  if (!label) { showNotice('na-err','na-ok','Le label est obligatoire.'); return; }
+  var kids    = document.getElementById('a-kids').checked;
+  var local   = getLocal();
+  local.push({
+    id:'local_'+Date.now(), label:label,
+    category: document.getElementById('a-cat').value,
+    difficulty: addDiff,
+    public: document.getElementById('a-public').value,
+    keyword: '',
+    tags: kids ? ['enfants'] : [],
+    _local:true
+  });
+  saveLocal(local);
+  showNotice('na-ok','na-err','Mime ajouté : '+label);
+  document.getElementById('a-label').value='';
+  document.getElementById('a-kids').checked=false;
+}
+function buildLocalList() {
+  var local = getLocal();
+  var ul = document.getElementById('local-list');
+  ul.innerHTML = '';
+  if (!local.length){ ul.innerHTML='<li class="list-empty">Aucun mime local.</li>'; return; }
+  local.forEach(function(m) {
+    var li = document.createElement('li');
+    li.className='local-item';
+    li.innerHTML='<div><div class="mli-label">'+esc(m.label)+'</div><div class="mli-meta">'+(CAT_LABELS[m.category]||m.category)+'</div></div>'
+      +'<button class="btn-del" onclick="deleteLocal(\''+m.id+'\')" title="Supprimer">&times;</button>';
+    ul.appendChild(li);
+  });
+}
+function deleteLocal(id) { saveLocal(getLocal().filter(function(m){ return m.id!==id; })); buildLocalList(); }
+function buildHiddenList() {
+  var hidden = getHidden();
+  var all = ((typeof mimes!=='undefined')?mimes:[]).concat(getLocal());
+  var ul = document.getElementById('hidden-list');
+  ul.innerHTML='';
+  if (!hidden.length){ ul.innerHTML='<li class="list-empty">Aucun mime masqué.</li>'; return; }
+  hidden.forEach(function(id) {
+    var m = all.find(function(x){ return x.id===id; });
+    var li = document.createElement('li');
+    li.className='local-item';
+    li.innerHTML='<span style="font-weight:600">'+esc(m?m.label:id)+'</span>'
+      +'<button class="btn-secondary" style="width:auto;padding:6px 12px;font-size:.78rem" onclick="unhide(\''+id+'\')" >Restaurer</button>';
+    ul.appendChild(li);
+  });
+}
+function unhide(id){ saveHidden(getHidden().filter(function(x){ return x!==id; })); buildHiddenList(); }
+function buildExport() {
+  var local=getLocal(), hidden=getHidden();
+  var out='const MIMES_VERSION="1.0.0";\nconst mimes='+JSON.stringify(local,null,2)+';\nconst HIDDEN_IDS='+JSON.stringify(hidden,null,2)+';';
+  document.getElementById('exp-box').textContent=out;
+}
+function doCopy(){ navigator.clipboard.writeText(document.getElementById('exp-box').textContent).then(function(){ flashMsg('exp-msg','Copié.'); }); }
+function doDl(){
+  var a=document.createElement('a');
+  a.href='data:text/javascript;charset=utf-8,'+encodeURIComponent(document.getElementById('exp-box').textContent);
+  a.download='mimes-local.js'; a.click();
+}
+function doReset(){
+  if(!confirm('Supprimer tous les mimes locaux et masquages ?')) return;
+  localStorage.removeItem(LS_LOCAL); localStorage.removeItem(LS_HIDDEN);
+  buildLocalList(); buildHiddenList();
 }
 
-// Init
-function init() {
-  loadStorage();
-  buildFilterUI('swipe', fSwipe, rebuildDeck);
-  buildFilterUI('list',  fList,  renderList);
-  bindToggles('s-adult', 's-explicit', 's-kids', fSwipe, rebuildDeck);
-  bindToggles('l-adult', 'l-explicit', 'l-kids', fList,  renderList);
-  initEditor();
+/* ── Helpers ── */
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function showNotice(showId,hideId,msg){
+  var a=document.getElementById(showId), b=document.getElementById(hideId);
+  a.textContent=msg; a.style.display='block'; b.style.display='none';
+  setTimeout(function(){ a.style.display='none'; },3000);
 }
-
-document.addEventListener('DOMContentLoaded', init);
+function flashMsg(id,msg){ var el=document.getElementById(id); el.textContent=msg; setTimeout(function(){ el.textContent=''; },2000); }
 </script>
 </body>
 </html>
