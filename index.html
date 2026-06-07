@@ -14,11 +14,11 @@
       align-items: center;
       justify-content: center;
       min-height: 100vh;
-      gap: 36px;
+      gap: 44px;
       padding: 24px;
     }
 
-    /* Logo Sensas — grand, bien visible */
+    /* Logo cropé — grand, texte SENSAS uniquement */
     .main-logo {
       width: min(80vw, 340px);
       height: auto;
@@ -50,7 +50,6 @@
     }
     .tool-btn:hover  { transform: scale(1.1); }
     .tool-btn:active { transform: scale(.93); opacity: .7; }
-
     .tool-btn img {
       width: 80px;
       height: 80px;
@@ -79,15 +78,13 @@
       filter: grayscale(100%) brightness(.75);
       transition: filter .15s;
     }
-    .tool-btn-soon:hover img {
-      filter: grayscale(100%) brightness(.9);
-    }
+    .tool-btn-soon:hover img { filter: grayscale(100%) brightness(.92); }
 
-    /* Animation shake (non) */
+    /* Animation shake */
     @keyframes shake {
       0%   { transform: translateX(0); }
-      15%  { transform: translateX(-8px) rotate(-3deg); }
-      35%  { transform: translateX(8px)  rotate(3deg); }
+      15%  { transform: translateX(-9px) rotate(-4deg); }
+      35%  { transform: translateX(9px)  rotate(4deg); }
       55%  { transform: translateX(-6px) rotate(-2deg); }
       72%  { transform: translateX(5px)  rotate(2deg); }
       85%  { transform: translateX(-3px); }
@@ -122,25 +119,11 @@
 
 <div class="main-wrap">
 
-  <img src="images/logo.webp" alt="Sensas" class="main-logo"
+  <!-- Logo cropé : texte SENSAS uniquement -->
+  <img src="images/logocrop.webp" alt="Sensas" class="main-logo"
        onerror="this.style.display='none'">
 
   <div class="tools-row">
-
-    <!-- Bouche — actif -->
-    <button class="tool-btn" onclick="navigate('gout.html', '#7c3aed')" aria-label="Salle des Goûts">
-      <img src="images/sens/bouche.png" alt="Bouche">
-    </button>
-
-    <!-- Nez — bientôt -->
-    <button class="tool-btn-soon" onclick="shake(this)" aria-label="Bientôt disponible">
-      <img src="images/sens/nez.png" alt="Nez">
-    </button>
-
-    <!-- Oreille — actif -->
-    <button class="tool-btn" onclick="navigate('ouie.html', '#c0152a')" aria-label="Salle des Mimes">
-      <img src="images/sens/oreille.png" alt="Oreille">
-    </button>
 
     <!-- Oeil — bientôt -->
     <button class="tool-btn-soon" onclick="shake(this)" aria-label="Bientôt disponible">
@@ -150,6 +133,21 @@
     <!-- Main — bientôt -->
     <button class="tool-btn-soon" onclick="shake(this)" aria-label="Bientôt disponible">
       <img src="images/sens/main.png" alt="Main">
+    </button>
+
+    <!-- Bouche — actif — violet #9333c8 (= --accent gout) -->
+    <button class="tool-btn" onclick="navigate('gout.html', '#9333c8')" aria-label="Salle des Goûts">
+      <img src="images/sens/bouche.png" alt="Bouche">
+    </button>
+
+    <!-- Nez — bientôt -->
+    <button class="tool-btn-soon" onclick="shake(this)" aria-label="Bientôt disponible">
+      <img src="images/sens/nez.png" alt="Nez">
+    </button>
+
+    <!-- Oreille — actif — rouge #c0152a (= --accent ouie) -->
+    <button class="tool-btn" onclick="navigate('ouie.html', '#c0152a')" aria-label="Salle des Mimes">
+      <img src="images/sens/oreille.png" alt="Oreille">
     </button>
 
   </div>
@@ -166,7 +164,7 @@ function navigate(url, color) {
 
 function shake(btn) {
   btn.classList.remove('shaking');
-  void btn.offsetWidth; /* reset animation */
+  void btn.offsetWidth;
   btn.classList.add('shaking');
   btn.addEventListener('animationend', function() {
     btn.classList.remove('shaking');
