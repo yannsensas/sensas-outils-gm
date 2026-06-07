@@ -119,21 +119,10 @@
     <span class="topbar-title">Liste des Mimes</span>
     <span style="width:36px"></span>
   </div>
-
-  <div class="filter-notch" id="list-notch" onclick="toggleFilters('list')">
-    <svg class="notch-arrow" id="list-notch-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
-  </div>
-
-  <div class="filter-panel" id="filter-panel-list">
-    <div class="filter-inner">
-      <div class="filter-row">
-        <span class="filter-label">Catégorie</span>
-        <div class="chips" id="list-cat-chips"></div>
-      </div>
-    </div>
-  </div>
-
   <div class="content">
+    <div class="filters-list-bar">
+      <div class="chips" id="list-cat-chips"></div>
+    </div>
     <ul class="mime-list" id="mime-list"></ul>
   </div>
 </div>
@@ -243,7 +232,6 @@ var addDiff = 2;
 var session = { validated:[], skipped:[], deck:[], current:null };
 var filters = loadFilters();
 var swipeFiltersOpen = false;
-var listFiltersOpen  = false;
 var listCatFilter = 'all';
 var ALL_CATS = ['animaux','actions','metiers','sports','danses','personnages','personnalites','expressions','enfants','adulte'];
 var toastTimer = null;
@@ -269,11 +257,6 @@ function toggleFilters(screen) {
     document.getElementById('filter-panel-swipe').classList.toggle('open', swipeFiltersOpen);
     document.getElementById('swipe-notch-arrow').style.transform = swipeFiltersOpen ? 'rotate(180deg)' : '';
     document.getElementById('swipe-notch').classList.toggle('active', swipeFiltersOpen);
-  } else {
-    listFiltersOpen = !listFiltersOpen;
-    document.getElementById('filter-panel-list').classList.toggle('open', listFiltersOpen);
-    document.getElementById('list-notch-arrow').style.transform = listFiltersOpen ? 'rotate(180deg)' : '';
-    document.getElementById('list-notch').classList.toggle('active', listFiltersOpen);
   }
 }
 
@@ -359,7 +342,6 @@ function toggleDiff(d, btn) {
 }
 function togglePublic(key, btn) {
   filters[key] = !filters[key];
-  // Exclusivité : Enfants désactive Explicite + Adulte
   if (key === 'explicit' && filters.explicit) {
     filters.kids = false;
     var tk = document.getElementById('tog-kids');
@@ -548,9 +530,18 @@ function starsSvg(diff) {
 
 function buildMimeList() {
   var chips = document.getElementById('list-cat-chips');
-  chips.innerHTML = '<button class="chip'+(listCatFilter==='all'?' active':'')+'\" onclick="setListCat(\'all\',this)">Tous</button>';
-  ALL_CATS.forEach(function(c){
-    chips.innerHTML += '<button class="chip'+(listCatFilter===c?' active':'')+'\" onclick="setListCat(\''+c+'\',this)">'+catLabel(c)+'</button>';
+  chips.innerHTML = '';
+  var allBtn = document.createElement('button');
+  allBtn.className = 'chip' + (listCatFilter === 'all' ? ' active' : '');
+  allBtn.textContent = 'Tous';
+  allBtn.onclick = function(){ setListCat('all', allBtn); };
+  chips.appendChild(allBtn);
+  ALL_CATS.forEach(function(c) {
+    var btn = document.createElement('button');
+    btn.className = 'chip' + (listCatFilter === c ? ' active' : '');
+    btn.textContent = catLabel(c);
+    btn.onclick = function(){ setListCat(c, btn); };
+    chips.appendChild(btn);
   });
   renderMimeList();
 }
