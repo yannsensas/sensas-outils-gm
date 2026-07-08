@@ -10,7 +10,7 @@ const ALLERGEN_LABELS = {
   "arachides":"Arachides", "fruitsCoque":"Fruits \u00e0 coque",
   "soja":"Soja", "celeri":"C\u00e9leri", "moutarde":"Moutarde",
   "sesame":"S\u00e9same", "lupin":"Lupin", "poisson":"Poisson",
-  "crustaces":"Crustac\u00e9s", "mollusques":"Mollusques",
+  "crustaces":"Crustac\és", "mollusques":"Mollusques",
   "sulfites":"Sulfites", "vegan":"Non v\u00e9gan",
   "vegetarien":"Non v\u00e9g\u00e9tarien", "halal":"Non halal", "casher":"Non casher"
 };
@@ -28,7 +28,7 @@ const selection = [
   "Champignons",
   "Jelly Belly",
   "Vers de farine",
-  "Chips de crevettes",
+  "Chips de crevette",
   "Ail",
   "Sucre en morceau",
 ];
@@ -61,12 +61,12 @@ const foods = [
   { "name": "Grillons", "allergens": {"gluten":"orange", "crustaces":"rouge", "mollusques":"rouge", "vegan":"rouge", "vegetarien":"rouge", "halal":"rouge", "casher":"rouge"}, "notes": {"gluten":"Peut contenir des traces", "crustaces":"Allergie croisée", "mollusques":"Allergie croisée"}, "image": "images/grillons.jpg" },
   { "name": "Ail", "allergens": {}, "notes": {}, "image": "images/ail.jpg" },
   { "name": "Popcorn", "allergens": {"lait":"orange"}, "notes": {"lait":"Traces"}, "image": "images/popcorn.jpg" },
-  { "name": "Chips de crevettes", "allergens": {"gluten":"orange", "lait":"orange", "arachides":"orange", "poisson":"orange", "crustaces":"rouge", "mollusques":"orange"}, "notes": {"gluten":"Traces", "lait":"Traces", "arachides":"Traces", "poisson":"Traces", "mollusques":"Traces"}, "image": "images/chipscrevette.jpg" },
   { "name": "Café", "allergens": {}, "notes": {}, "image": "images/cafe.jpg" },
-  { "name": "Bonbon banane", "allergens": {"lait":"orange", "soja":"orange"}, "notes": {"lait":"Traces", "soja":"Traces"}, "image": "images/bananes.jpg" },
   { "name": "Chocolat noir", "allergens": {"lait":"orange", "fruitsCoque":"orange"}, "notes": {"lait":"Traces", "fruitsCoque":"Traces"}, "image": "images/chocolat.jpg" },
   { "name": "Orange", "allergens": {}, "notes": {}, "image": "images/orange.jpg" },
-  { "name": "Jelly Belly", "allergens": {}, "notes": {}, "image": "images/jellybelly.jpg" },
   { "name": "Sucre en morceau", "allergens": {}, "notes": {} },
   { "name": "Champignons", "allergens": {}, "notes": {} },
+  { "name": "Chips de crevette", "allergens": {"gluten":"orange", "lait":"orange", "arachides":"orange", "poisson":"orange", "crustaces":"rouge", "mollusques":"orange", "vegan":"rouge", "vegetarien":"rouge", "halal":"rouge", "casher":"rouge"}, "notes": {"gluten":"Traces", "lait":"Traces", "arachides":"Traces", "poisson":"Traces", "mollusques":"Traces"}, "image": "images/chipscrevette.jpg" },
+  { "name": "Bonbon banane", "allergens": {"lait":"orange", "soja":"orange", "vegan":"rouge", "vegetarien":"rouge", "halal":"rouge", "casher":"rouge"}, "notes": {"vegan":"Gelatine de porc?", "vegetarien":"Gelatine de porc?", "halal":"Gelatine de porc?", "casher":"Gelatine de porc?"} },
+  { "name": "Jelly Belly", "allergens": {"vegetarien":"rouge", "halal":"rouge", "casher":"rouge"}, "notes": {}, "image": "images/jellybelly.jpg" },
 ];
