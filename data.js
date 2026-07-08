@@ -63,7 +63,7 @@ const foods = [
   { "name": "Popcorn", "allergens": {"lait":"orange"}, "notes": {"lait":"Traces"}, "image": "images/popcorn.jpg" },
   { "name": "Chips de crevettes", "allergens": {"gluten":"orange", "lait":"orange", "arachides":"orange", "poisson":"orange", "crustaces":"rouge", "mollusques":"orange"}, "notes": {"gluten":"Traces", "lait":"Traces", "arachides":"Traces", "poisson":"Traces", "mollusques":"Traces"}, "image": "images/chipscrevette.jpg" },
   { "name": "Café", "allergens": {}, "notes": {}, "image": "images/cafe.jpg" },
-  { "name": "Bonbon banane", "allergens": {"lait":"orange", "soja":"orange"}, "notes": {"lait":"Traces", "soja":"Traces"}, "image": "images/banane.jpg" },
+  { "name": "Bonbon banane", "allergens": {"lait":"orange", "soja":"orange"}, "notes": {"lait":"Traces", "soja":"Traces"}, "image": "images/bananes.jpg" },
   { "name": "Chocolat noir", "allergens": {"lait":"orange", "fruitsCoque":"orange"}, "notes": {"lait":"Traces", "fruitsCoque":"Traces"}, "image": "images/chocolat.jpg" },
   { "name": "Orange", "allergens": {}, "notes": {}, "image": "images/orange.jpg" },
   { "name": "Jelly Belly", "allergens": {}, "notes": {}, "image": "images/jellybelly.jpg" },
